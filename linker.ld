@@ -5,4 +5,6 @@ SECTIONS {
     .data : { *(.data) }
     .bss  : { *(.bss)  }
     .rodata : { *(.rodata) }
+
+    .kernel_end : { *(.kernel_end) }
 }

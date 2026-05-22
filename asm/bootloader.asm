@@ -32,7 +32,7 @@ start:
 	; init is loaded into 0x8000:0x0000 or 0x80000, a lot of numbers, i know
 	
 	mov ah, 0x02			; 0x02 for reading disk
-	mov al, 0x02			; number of sectors to read	
+	mov al, 60			; number of sectors to read 
 	mov ch, 0x00			; cylinder 0, whatever that is
 	mov cl, 0x02			; sector at which we are starting
 	mov dh, 0x00			; head 0
@@ -40,7 +40,7 @@ start:
 
 	int 0x13			; call the interrupt
 	jc error_reading		; if carry is set, stop now
-	
+
 	jmp 0x8000:0x0000		; jump to the initializer, goodbye cruel 8086 world!
 	
 	; =============== ERROR HANDLING ===============
@@ -56,7 +56,6 @@ start:
 		jmp start_loop2
 	end_loop2:
 
-	
 	; =============== STOP EXECUTING ===============
 	stop:
 	cli				; stop interrupts

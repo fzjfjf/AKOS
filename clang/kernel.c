@@ -1,23 +1,22 @@
-void kprint(char *s, volatile unsigned char *vga) {
-	int i = 0;	
+#include "../clangh/kstdlib.h"
 
-	while (s[i] != 0) {
-		*vga = s[i];
-		vga++;
-		*vga = 0x0f;
-		vga++;
-		i++;
-	}
+void kmain()
+{
+	// Make and initialize global struct 
+	VGA_t vga_args = {
+		.vga = (address)(VGA_ADDRESS + 160),	// adjust since initializer prints some text
+		.line_number = 1,
+		.remove_line_below = false,
+	};
 
-	return;
-}
+	zero_memory(HEAP_START, HEAP_END);
 
-void kmain() {
-	volatile unsigned char *vga = (unsigned char *)0xb8000;
+	kprint("[OK] Switched to Kernel\n\0", &vga_args);
 
-	vga += 160;
-	char *success = "[OK] Switched to Kernel\0";
-	kprint(success, vga);
+	char *test = kmalloc(128);
+
+	if (test != NULL) kprint("kmalloc WORKED\n\0", &vga_args);
+	else kprint("kmalloc didnt work\n\0", &vga_args);
 
 	// end
 	while (1) {

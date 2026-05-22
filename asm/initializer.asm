@@ -60,6 +60,7 @@ start:
 	
 [bits 32]
 extern kmain
+extern signature
 protected:
 	mov eax, DATA_SEG
 	mov ds, ax
@@ -92,7 +93,7 @@ protected:
 	mov byte [0xb0001], 0x0f
 
 	
-	; TODO: fix
+	; TODO: fix			is it fixed? i dont know and dont care since it works
 	; print success message
 	mov eax, [vga_buffer_pointer]
 	mov ebx, switch_success
@@ -111,14 +112,36 @@ protected:
 
 	end_loop3:
 		mov [vga_buffer_pointer], eax
-	
+	; check if kernel is fully loaded
+	mov eax, 0x004b4100		; signature
+	mov ebx, [signature]
+	cmp eax, ebx
+	jne error_incomplete_kernel 
+
 	call kmain			; call C code
 			
 	stop:
 	hlt
 	jmp stop
 
-	
+	error_incomplete_kernel:
+		mov eax, [vga_buffer_pointer]
+		mov ebx, error_incomplete_load
+		start_loop4:
+			mov dl, byte [ebx]
+			cmp dl, 0x0	
+			je stop
+			
+			mov [eax], dl
+			mov byte [eax+1], 0xf4
+
+			add eax, 2
+			inc ebx
+
+			jmp start_loop4
+		end_loop4:
+
+error_incomplete_load: db "[FAILED] Kernel is NOT FULLY LOADED. Aborting boot.", 0	
 switch_success: db "[OK] Switched to 32-bit Protected Mode", 0		; dont include `10` and `13` bc they are not \r\n
 start_switch: db "[OK] Starting switching process...", 13, 10, 0
 
