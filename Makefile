@@ -7,7 +7,7 @@ all: disk.img
 
 compiled/bin/bootloader.bin: src/asm/bootloader.asm
 	@echo "Building bootloader..."
-	@nasm -f bin src/asm/bootloader.bin -o compiled/bin/bootloader.bin
+	@nasm -f bin src/asm/bootloader.asm -o compiled/bin/bootloader.bin
 
 $(O)/initializer.o: src/asm/initializer.asm
 	@echo "Building initializer..."
