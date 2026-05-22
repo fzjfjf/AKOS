@@ -1,7 +1,5 @@
-#include "../clangh/kstdlib.h"
+#include <kstdlib.h>
 
-#define HEAP_START (address)0xb0000000
-#define HEAP_END (address)0xbfffffff
 
 typedef struct {
 	address ptr;

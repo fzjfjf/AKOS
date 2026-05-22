@@ -1,61 +1,47 @@
-# Varijable za kompajlere i zastavice
-ASM = nasm
-CC = gcc
-LD = ld
+CF = -m32 -c -ffreestanding --freestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib
+O = compiled/obj
 
-CFLAGS = -m32 -ffreestanding -c -fno-pic -Iclangh
-ASMFLAGS_BIN = -f bin
-ASMFLAGS_ELF = -f elf32
-LDFLAGS = -m elf_i386 -T linker.ld --oformat binary
+OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/signature.o
 
-# Glavno pravilo
 all: disk.img
 
-# asemblaj in-out-funkcije
-obj/in-out-functions.o: asm/in-out-functions.asm
-	@echo "Assembling in and out functions"
-	$(ASM) $(ASMFLAGS_ELF) asm/in-out-functions.asm -o obj/in-out-functions.o
-# Spajanje bootloadera i kernela u finalnu sliku diska
-disk.img: bin/bootloader.bin bin/init_kernel.bin
-	@echo "Generating image..."
-	cat bin/bootloader.bin bin/init_kernel.bin > disk.img
-
-# Kompajliranje bootloadera
-bin/bootloader.bin: asm/bootloader.asm
+compiled/bin/bootloader.bin: src/asm/bootloader.asm
 	@echo "Building bootloader..."
-	$(ASM) $(ASMFLAGS_BIN) asm/bootloader.asm -o bin/bootloader.bin
+	@nasm -f bin src/asm/bootloader.bin -o compiled/bin/bootloader.bin
 
-# Linkovanje kernela (Uključuje initializer na početku i signature na samom kraju!)
-bin/init_kernel.bin: obj/initializer.o obj/kernel.o obj/kernel_signature.o obj/kstdlib.o obj/in-out-functions.o
-	@echo "Linking..."
-	$(LD) $(LDFLAGS) obj/initializer.o obj/kernel.o obj/kstdlib.o obj/in-out-functions.o obj/kernel_signature.o -o bin/init_kernel.bin
+$(O)/initializer.o: src/asm/initializer.asm
+	@echo "Building initializer..."
+	@nasm -f elf32 src/asm/initializer.asm -o compiled/obj/initializer.o
 
-# Asemblanje potpisa u objektni fajl (.o) u ELF32 formatu
-obj/kernel_signature.o: asm/kernel_signature.asm
-	@echo "Assembling signature..."
-	$(ASM) $(ASMFLAGS_ELF) asm/kernel_signature.asm -o obj/kernel_signature.o
-
-# Kompajliranje asm inicijalizatora
-obj/initializer.o: asm/initializer.asm
-	$(ASM) $(ASMFLAGS_ELF) asm/initializer.asm -o obj/initializer.o
-
-# Kompajliranje C kernela (prati i izmjene u kstdlib.h)
-obj/kernel.o: clang/kernel.c clangh/kstdlib.h
-	@echo "Building kernel..."
-	$(CC) $(CFLAGS) clang/kernel.c -o obj/kernel.o
-
-# kompajluj kstdlib
-obj/kstdlib.o: clang/kstdlib.c clangh/kstdlib.h
+$(O)/kstdlib.o: src/clang/stdlib/kstdlib.c src/clangh/stdlib/kstdlib.h src/clangh/keyboard.h
 	@echo "Building standard library..."
-	$(CC) $(CFLAGS) clang/kstdlib.c -o obj/kstdlib.o
+	@gcc $(CF) src/clang/stdlib/kstdlib.c -o compiled/obj/kstdlib.o
 
-# Pravilo za pokretanje u QEMU
+$(O)/keyboard.o: src/clang/keyboard.c src/clangh/keyboard.h
+	@echo "Building keyboard driver..."
+	@gcc $(CF) src/clang/keyboard.c -o compiled/obj/keyboard.o
+
+$(O)/kernel.o: src/clang/kernel.c src/clangh/stdlib/kstdlib.h
+	@echo "Building kernel..."
+	@gcc $(CF) src/clang/kernel.c -o compiled/obj/kernel.o
+
+$(O)/signature.o: src/asm/kernel_signature.asm 
+	@echo "Building signature..."
+	@nasm -f elf32 src/asm/kernel_signature.asm -o compiled/obj/signature.o
+
+$(O)/inout.o: src/asm/in-out-functions.asm 
+	@echo "Building inb and outb functions..."
+	@nasm -f elf32 src/asm/in-out-functions.asm -o compiled/obj/inout.o
+
+compiled/bin/combined.bin: $(OBJS)
+	@echo "Linking everything..."
+	@ld -m elf_i386 -T linker.ld --oformat binary $(OBJS) -o compiled/bin/combined.bin
+ 
+disk.img: compiled/bin/bootloader.bin compiled/bin/combined.bin
+	@echo "Making disk image..."
+	@cat compiled/bin/bootloader.bin compiled/bin/combined.bin > disk.img
+	@dd if=/dev/null of=disk.img bs=512 seek=61
+
 run: disk.img
-	@echo "Running the image..."
-	dd if=/dev/null of=disk.img bs=512 seek=61
-	qemu-system-i386 -m 4096 disk.img
-
-# Čišćenje generisanih fajlova
-clean:
-	@echo "Cleaning up..."
-	rm -f bin/*.bin obj/*.o disk.img
+	@echo "Running image in QEMU..."
+	@qemu-system-i386 -m 4096 -drive format=raw,file=disk.img	

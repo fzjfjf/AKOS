@@ -1,4 +1,4 @@
-#include "../clangh/kstdlib.h"
+#include <kstdlib.h>
 
 void kmain()
 {
