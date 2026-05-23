@@ -1,4 +1,5 @@
-#include <stdlib/kstdlib.h>
+#include <kstdlib.h>
+#include <keyboard.h>
 
 typedef struct {
 	address ptr;
@@ -7,7 +8,31 @@ typedef struct {
 	bool is_free;
 } heap_mem_header_t;
 
-extern void outb_wrapper(uint16_t port, uint8_t data);
+extern void outb(uint16_t port, uint8_t data);
+
+size_t kstrlen(char *s)
+{
+	size_t len = 0;
+	while (s[len] != 0) {
+		len++;
+	}
+	return len;
+}
+
+bool kstrcmp(char *s1, char *s2)
+{
+	size_t len1 = kstrlen(s1);
+	size_t len2 = kstrlen(s2);
+	if (len1 != len2) {
+		return false;
+	}
+	for (int i = 0; i < len1; i++) {
+		if (s1[i] != s2[i]) {
+			return false;
+		}
+	}
+	return true;
+}
 
 void zero_memory(address start, address end)
 {
@@ -24,11 +49,11 @@ int kdo_nothing()
 
 void update_cursor(uint16_t pos)
 {
-	outb_wrapper(0x3D4, 14);
-	outb_wrapper(0x3D5, (pos >> 8) & 0xFF);
+	outb(0x3D4, 14);
+	outb(0x3D5, (pos >> 8) & 0xFF);
 
-	outb_wrapper(0x3D4, 15);
-	outb_wrapper(0x3D5, pos & 0xFF);
+	outb(0x3D4, 15);
+	outb(0x3D5, pos & 0xFF);
 }
 
 void* kmalloc(size_t size)

@@ -1,0 +1,29 @@
+#include <shell.h>
+#include <keyboard.h>
+#include <kstdlib.h>
+
+typedef void (*program_t)();
+
+void shell(program_t *programs[], char *names[], size_t count, VGA_t *vga_args)
+{
+	char command[128] = {0};
+	unsigned char c = ' ';
+	int index = 0;
+	char text[2] = {0};
+
+	while (1) {
+		c = kgetchar_nb();
+		if (c != 0) {
+			if (c < 0x80 && c > 0x20) {
+				text[0] = c;
+				text[1] = '\0';
+				kprint(text, vga_args);
+				command[index++] = c;
+			}
+		}
+
+		if (kstrcmp(command, "exit") == true) {
+			return;
+		}
+	}
+}

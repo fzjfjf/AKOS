@@ -1,7 +1,7 @@
-CF = -m32 -c -ffreestanding --freestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib
+CF = -m32 -c -ffreestanding --freestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell
 O = compiled/obj
 
-OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/signature.o
+OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/signature.o
 
 all: disk.img
 
@@ -13,13 +13,13 @@ $(O)/initializer.o: src/asm/initializer.asm
 	@echo "Building initializer..."
 	@nasm -f elf32 src/asm/initializer.asm -o compiled/obj/initializer.o
 
-$(O)/kstdlib.o: src/clang/stdlib/kstdlib.c src/clangh/stdlib/kstdlib.h src/clangh/keyboard.h
+$(O)/kstdlib.o: src/clang/stdlib/kstdlib.c src/clangh/stdlib/kstdlib.h src/clangh/keyboard/keyboard.h
 	@echo "Building standard library..."
 	@gcc $(CF) src/clang/stdlib/kstdlib.c -o compiled/obj/kstdlib.o
 
-$(O)/keyboard.o: src/clang/keyboard.c src/clangh/keyboard.h
+$(O)/keyboard.o: src/clang/keyboard/keyboard.c src/clangh/keyboard/keyboard.h
 	@echo "Building keyboard driver..."
-	@gcc $(CF) src/clang/keyboard.c -o compiled/obj/keyboard.o
+	@gcc $(CF) src/clang/keyboard/keyboard.c -o compiled/obj/keyboard.o
 
 $(O)/kernel.o: src/clang/kernel.c src/clangh/stdlib/kstdlib.h
 	@echo "Building kernel..."
@@ -32,6 +32,10 @@ $(O)/signature.o: src/asm/kernel_signature.asm
 $(O)/inout.o: src/asm/in-out-functions.asm 
 	@echo "Building inb and outb functions..."
 	@nasm -f elf32 src/asm/in-out-functions.asm -o compiled/obj/inout.o
+
+$(O)/shell.o: src/clang/shell/shell.c src/clangh/keyboard/keyboard.h src/clangh/stdlib/kstdlib.h
+	@echo "Building shell..."
+	@gcc $(CF) src/clang/shell/shell.c -o $(O)/shell.o
 
 compiled/bin/combined.bin: $(OBJS)
 	@echo "Linking everything..."

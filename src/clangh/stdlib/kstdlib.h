@@ -26,3 +26,5 @@ void* kmalloc(size_t size);
 void kprint(char *s, VGA_t *vga_args);
 int kdo_nothing();
 void zero_memory(address start, address end);
+bool kstrcmp(char *s1, char *s2);
+size_t kstrlen(char *s);

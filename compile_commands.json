@@ -1,0 +1,21 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-m32",
+      "-c",
+      "-ffreestanding",
+      "--freestanding",
+      "-fno-pic",
+      "-Isrc/clangh",
+      "-Isrc/clangh/stdlib",
+      "-Isrc/clangh/keyboard",
+      "-o",
+      "compiled/obj/keyboard.o",
+      "src/clang/keyboard/keyboard.c"
+    ],
+    "directory": "/home/abdurrahman/kodiranje/os",
+    "file": "/home/abdurrahman/kodiranje/os/src/clang/keyboard/keyboard.c",
+    "output": "/home/abdurrahman/kodiranje/os/compiled/obj/keyboard.o"
+  }
+]
