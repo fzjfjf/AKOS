@@ -6,10 +6,27 @@
 
 extern uint8_t inb(uint16_t port);
 
+char scancode_to_ascii[128] = {
+    0,    0,   '1', '2', '3', '4', '5', '6', '7', '8',
+    '9', '0', '-', '=',  0,   0,   'q', 'w', 'e', 'r',
+    't', 'y', 'u', 'i', 'o', 'p', '[', ']',  0,   0,
+    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
+    '\'','`',  0,  '\\','z', 'x', 'c', 'v', 'b', 'n',
+    'm', ',', '.', '/',  0,  '*',  0,  ' ',  0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0
+};
+
 unsigned char decode_scancode(uint8_t scancode)
 {
     char c;
-    if (scancode < 0x3a) {
+    if (scancode == KEY_ENTER) return '\n';
+    else if (scancode < 0x3a) {
         c = scancode_to_ascii[scancode];
     } else {
         return scancode;

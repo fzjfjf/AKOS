@@ -12,6 +12,7 @@ extern void outb(uint16_t port, uint8_t data);
 
 size_t kstrlen(char *s)
 {
+
 	size_t len = 0;
 	while (s[len] != 0) {
 		len++;
@@ -19,8 +20,13 @@ size_t kstrlen(char *s)
 	return len;
 }
 
-bool kstrcmp(char *s1, char *s2)
+bool kstrcmp(char *s1, char *s2, VGA_t *vga_args)
 {
+	// kprint("\nS1: ", vga_args);
+	// kprint(s1, vga_args);
+	// kprint("\nS2: ", vga_args);
+	// kprint(s2, vga_args);
+
 	size_t len1 = kstrlen(s1);
 	size_t len2 = kstrlen(s2);
 	if (len1 != len2) {
