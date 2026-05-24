@@ -29,3 +29,4 @@ void zero_memory(address start, address end);
 bool kstrcmp(char *s1, char *s2);
 size_t kstrlen(char *s);
 void kclear_vga_buffer();
+void kfree(void *p);

@@ -66,6 +66,7 @@ void update_cursor(uint16_t pos)
 
 void* kmalloc(size_t size)
 {
+	// TODO: add reusing blocks instaed of only beaing a bump allocator
 	address p = HEAP_START;
 	while (p < HEAP_END) {
 		if (p[0] == 0) {
@@ -78,6 +79,12 @@ void* kmalloc(size_t size)
 		}
 
 		heap_mem_header_t *header = (heap_mem_header_t *)p;
+
+		if (header->is_free && header->size >= size) {
+			header->is_free = false;
+			return (void *)p + sizeof(heap_mem_header_t);
+		}
+
 		p = header->next_ptr;
 	}
 

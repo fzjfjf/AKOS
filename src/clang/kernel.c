@@ -21,13 +21,22 @@ void kmain()
 	if (test != NULL) kprint("kmalloc WORKED\n\0");
 	else kprint("kmalloc didnt work\n\0");
 
+	*test = 'A';
+
+	kfree(test);
+
+	test = kmalloc(128);
+
+	if (test != NULL && *test == 'A') kprint("kmalloc reuses\n");
+	else kprint("kmalloc didnt reuses\n\0");
+
 	// size_t var1 = kinput_b(test);
 	//
 	// kprint(test, &vga_args);
 
 	program_t *programs[] = {};
 	char *program_names[] = {};
-	shell(programs, program_names, 0, &vga_args);
+	shell(programs, program_names, 0);
 	kprint("\nSHELL ended\n");
 	kprint("\n\n===== END OF KERNEL CODE, HALTING =====");
 	// end
