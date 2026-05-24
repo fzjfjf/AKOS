@@ -137,7 +137,7 @@ void kprint(char *s)	//NOLINT
 void kclear_vga_buffer()
 {
 	address vga_p = (address)VGA_ADDRESS;
-	for (int i = 0; i < MAX_NUM_LINES * 80 * 2; i++) {
+	for (int i = 0; i < (MAX_NUM_LINES + 1) * 80 * 2; i++) {
 		vga_p[i] = 0;
 	}
 	vga_args.vga = (address)VGA_ADDRESS;

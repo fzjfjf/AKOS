@@ -11,11 +11,18 @@ void shell(program_t *programs[], char *names[], size_t count, VGA_t *vga_args)
 	int index = 0;
 	char text[2] = {0};
 
+	char *help_message[5] = {
+		"EXIT - Exit the shell\n",
+		"CLS - Clear the screen\n",
+		"UNAME - Show version number\n",
+		"HELP - Show help message\n",
+	};
+
 	kprint("> ");
 
 	while (1) {
 		c = kgetchar_nb();
-		if (c != 0) {
+		if (c != 0 && (index < 126 || c == '\n')) {
 			if (c < 0x80 && c >= 0x20) {
 				text[0] = c;
 				text[1] = '\0';
@@ -28,6 +35,11 @@ void shell(program_t *programs[], char *names[], size_t count, VGA_t *vga_args)
 					return;
 				} else if (kstrcmp("cls", command) == true) {
 					kclear_vga_buffer();
+					kprint("\n");
+				} else if (kstrcmp("uname", command) == true) {
+					kprint("AKOS(C) Kernel v0.1\n");
+				} else if (kstrcmp("help", command) == true) {
+					for (int i = 0; i < 4; i++) kprint(help_message[i]);
 				}
 
 				zero_memory((address)command, (address)command + index);
@@ -38,7 +50,5 @@ void shell(program_t *programs[], char *names[], size_t count, VGA_t *vga_args)
 			// kprint(command, vga_args);
 			// kprint("\n", vga_args);
 		}
-
-
 	}
 }
