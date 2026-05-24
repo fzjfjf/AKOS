@@ -1,6 +1,8 @@
 #include <kstdlib.h>
 #include <keyboard.h>
 
+extern VGA_t vga_args;
+
 typedef struct {
 	address ptr;
 	address next_ptr;
@@ -20,7 +22,7 @@ size_t kstrlen(char *s)
 	return len;
 }
 
-bool kstrcmp(char *s1, char *s2, VGA_t *vga_args)
+bool kstrcmp(char *s1, char *s2)
 {
 	// kprint("\nS1: ", vga_args);
 	// kprint(s1, vga_args);
@@ -89,7 +91,7 @@ void kfree(void *p)
 	return;		//NOLINT
 }
 
-void kprint(char *s, VGA_t *vga_args)	//NOLINT
+void kprint(char *s)	//NOLINT
 {
 	int i = 0;	
 
@@ -97,38 +99,47 @@ void kprint(char *s, VGA_t *vga_args)	//NOLINT
 
 		if (s[i] == 10) {
 			// 10 == line feed ('\n'), need to switch to new line
-			if (vga_args->line_number >= MAX_NUM_LINES) {
-				vga_args->line_number = 0;
-				vga_args->vga = (address)VGA_ADDRESS;
+			if (vga_args.line_number >= MAX_NUM_LINES) {
+				vga_args.line_number = 0;
+				vga_args.vga = (address)VGA_ADDRESS;
 			} else {
-				vga_args->line_number++;
-				vga_args->vga = vga_args->line_number * 160 + (address)VGA_ADDRESS;
+				vga_args.line_number++;
+				vga_args.vga = vga_args.line_number * 160 + (address)VGA_ADDRESS;
 			}
 			// clear current line and next line 
 			for (int j = 0; j < 320; j+=2) {
-				vga_args->vga[j] = ' ';
-				vga_args->vga[j + 1] = 0x0f;
+				vga_args.vga[j] = ' ';
+				vga_args.vga[j + 1] = 0x0f;
 			}
 
 			i++;
 			continue;
 		}
 
-		*vga_args->vga = s[i];
-		vga_args->vga++;
-		*vga_args->vga = 0x0f;
-		vga_args->vga++; 
+		*vga_args.vga = s[i];
+		vga_args.vga++;
+		*vga_args.vga = 0x0f;
+		vga_args.vga++;
 		i++;
 
-		if (((int)(vga_args->vga - VGA_ADDRESS) / 2 ) - (vga_args->line_number) * 80 > 80) {
-			vga_args->line_number++;
+		if (((int)(vga_args.vga - VGA_ADDRESS) / 2 ) - (vga_args.line_number) * 80 > 80) {
+			vga_args.line_number++;
 		}
 
 	}
 
 	// put cursor in place
-	update_cursor((((int)vga_args->vga - VGA_ADDRESS) / 2));
+	update_cursor((((int)vga_args.vga - VGA_ADDRESS) / 2));
 
 	return;	//NOLINT
 }
 
+void kclear_vga_buffer()
+{
+	address vga_p = (address)VGA_ADDRESS;
+	for (int i = 0; i < MAX_NUM_LINES * 80 * 2; i++) {
+		vga_p[i] = 0;
+	}
+	vga_args.vga = (address)VGA_ADDRESS;
+	vga_args.line_number = 0;
+}
