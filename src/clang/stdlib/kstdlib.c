@@ -14,6 +14,7 @@ VGA_t vga_args = {
 	.line_number = 1,
 	.remove_line_below = false,
 	.column_number = -1,					// -1 since kstdlib.c doesnt use this
+	.color = 0x0f,
 };
 
 extern void outb(uint16_t port, uint8_t data);
@@ -48,7 +49,7 @@ bool kstrcmp(char *s1, char *s2)
 	return true;
 }
 
-void zero_memory(address start, address end)
+void kmem_zero(address start, address end)
 {
 	uint32_t *p = (uint32_t *)start;
 	while (p < (uint32_t *)end) {
@@ -129,11 +130,18 @@ void kprint(char *s)	//NOLINT
 
 			i++;
 			continue;
+		} else if (s[i] == 13) {
+			vga_args.vga = (address)(VGA_ADDRESS + vga_args.line_number * 160);
+			i++;
+		} else if (s[i] == '\b') {
+			vga_args.vga -= 2;
+			i++;
+			continue;
 		}
 
 		*vga_args.vga = s[i];
 		vga_args.vga++;
-		*vga_args.vga = 0x0f;
+		*vga_args.vga = vga_args.color;
 		vga_args.vga++;
 		i++;
 

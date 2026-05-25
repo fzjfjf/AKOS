@@ -20,13 +20,14 @@ typedef struct {
 	volatile unsigned char* vga;
 	int line_number;
 	int column_number;
+	int color;
 	bool remove_line_below;
 } VGA_t;
 
 void* kmalloc(size_t size);
 void kprint(char *s);
 int kdo_nothing();
-void zero_memory(address start, address end);
+void kmem_zero(address start, address end);
 bool kstrcmp(char *s1, char *s2);
 size_t kstrlen(char *s);
 void kclear_vga_buffer();

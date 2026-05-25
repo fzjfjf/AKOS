@@ -38,18 +38,20 @@ void shell(program_t *programs[], char *names[], size_t count)
 					kclear_vga_buffer();
 					kprint("\n");
 				} else if (kstrcmp("uname", command) == true) {
-					kprint("AKOS(C) Kernel v0.1\n");
+					kprint("AKOS(C) Kernel v0.1-3\n");
 				} else if (kstrcmp("help", command) == true) {
 					for (int i = 0; i < 4; i++) kprint(help_message[i]);
 				}
 
-				zero_memory((address)command, (address)command + index);
+				kmem_zero((address)command, (address)command + index);
 				index = 0;
 				kprint("> ");
+			} else if (c == '\b' && index > 0) {
+				command[--index] = '\0';
+				kprint("\r> ");
+				kprint(command);
+				kprint(" \b");
 			}
-			// kprint("\nCMD: ", vga_args);
-			// kprint(command, vga_args);
-			// kprint("\n", vga_args);
 		}
 	}
 }

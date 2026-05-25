@@ -26,6 +26,7 @@ unsigned char decode_scancode(uint8_t scancode)
 {
     char c;
     if (scancode == KEY_ENTER) return '\n';
+    if (scancode == KEY_BKSP) return '\b';
     else if (scancode < 0x3a) {
         c = scancode_to_ascii[scancode];
     } else {

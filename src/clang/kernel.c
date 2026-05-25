@@ -2,17 +2,21 @@
 #include <keyboard.h>
 #include <shell.h>
 
+extern VGA_t vga_args;
+
 void kmain()
 {
 	// ========== INITIALIZATIONS ==========
-	// Initialize heap to zero
-	zero_memory(HEAP_START, HEAP_END);
-	// print confirmation message
 	kprint("[OK] Switched to Kernel\n");
+	// Initialize heap to zero
+	kprint("[  ] Zeroing heap memory...");
+	kmem_zero(HEAP_START, HEAP_END);
+	// print confirmation message
+	kprint("\r[OK] Zeroed heap memory        \n");
 
 	// ========== TESTS ==========
 	// test kmalloc
-	kprint("[TEST] Testing kmalloc...\n");
+	kprint("[TEST] Testing kmalloc...");
 
 	char *test = kmalloc(128);
 	if (test == NULL) goto kmalloc_error;
@@ -22,7 +26,7 @@ void kmain()
 	test = kmalloc(128);
 	if (test == NULL || *test != 'A') goto kmalloc_error;
 
-	kprint("[OK] kmalloc WORKS\n");
+	kprint("\r[OK] kmalloc WORKS              \n");
 
 	// ========== SHELL ==========
 	// start shell
@@ -39,6 +43,7 @@ void kmain()
 
 	// ========== ERROR LABELS ==========
 	kmalloc_error:
+	vga_args.color = 0xf4;
 	kprint("[FAILED] kmalloc DOESN'T WORK, HALTING\n");
 	goto stop;
 
