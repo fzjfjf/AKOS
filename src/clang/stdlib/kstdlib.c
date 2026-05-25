@@ -66,7 +66,7 @@ void update_cursor(uint16_t pos)
 
 void* kmalloc(size_t size)
 {
-	// TODO: add reusing blocks instaed of only beaing a bump allocator
+	// TODO: add reusing blocks instaed of only beaing a bump allocator - fixed
 	address p = HEAP_START;
 	while (p < HEAP_END) {
 		if (p[0] == 0) {
@@ -101,6 +101,8 @@ void kfree(void *p)
 void kprint(char *s)	//NOLINT
 {
 	int i = 0;	
+
+	if (s == NULL) return;
 
 	while (s[i] != 0) {
 

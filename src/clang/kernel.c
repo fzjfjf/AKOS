@@ -11,36 +11,49 @@ VGA_t vga_args = {
 
 void kmain()
 {
-
+	// ========== INITIALIZATIONS ==========
+	// Initialize heap to zero
 	zero_memory(HEAP_START, HEAP_END);
+	// print confirmation message
+	kprint("[OK] Switched to Kernel\n");
 
-	kprint("[OK] Switched to Kernel\n\0");
+	// ========== TESTS ==========
+	// test kmalloc
+	kprint("[TEST] Testing kmalloc...\n");
 
 	char *test = kmalloc(128);
-
-	if (test != NULL) kprint("kmalloc WORKED\n\0");
-	else kprint("kmalloc didnt work\n\0");
+	if (test == NULL) goto kmalloc_error;
 
 	*test = 'A';
-
 	kfree(test);
-
 	test = kmalloc(128);
+	if (test == NULL || *test != 'A') goto kmalloc_error;
 
-	if (test != NULL && *test == 'A') kprint("kmalloc reuses\n");
-	else kprint("kmalloc didnt reuses\n\0");
+	kprint("[OK] kmalloc WORKS\n");
 
-	// size_t var1 = kinput_b(test);
-	//
-	// kprint(test, &vga_args);
-
+	// ========== SHELL ==========
+	// start shell
 	program_t *programs[] = {};
 	char *program_names[] = {};
 	shell(programs, program_names, 0);
+
+	// notify that shell ended
 	kprint("\nSHELL ended\n");
+
+	// print that there is nothing more to execute, and stop
 	kprint("\n\n===== END OF KERNEL CODE, HALTING =====");
+	goto stop;
+
+	// ========== ERROR LABELS ==========
+	kmalloc_error:
+	kprint("[FAILED] kmalloc DOESN'T WORK, HALTING\n");
+	goto stop;
+
+
+
 	// end
-	while (1) {
+	stop:
+	while (1) {			// NOLINT
 			__asm__ volatile("hlt");	
 	}
 }
