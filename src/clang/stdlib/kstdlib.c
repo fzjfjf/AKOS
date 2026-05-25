@@ -1,14 +1,20 @@
 #include <kstdlib.h>
 #include <keyboard.h>
 
-extern VGA_t vga_args;
-
 typedef struct {
 	address ptr;
 	address next_ptr;
 	size_t size;
 	bool is_free;
 } heap_mem_header_t;
+
+// Make and initialize global struct
+VGA_t vga_args = {
+	.vga = (address)(VGA_ADDRESS + 160),	// adjust since initializer prints some text
+	.line_number = 1,
+	.remove_line_below = false,
+	.column_number = -1,					// -1 since kstdlib.c doesnt use this
+};
 
 extern void outb(uint16_t port, uint8_t data);
 
@@ -55,7 +61,7 @@ int kdo_nothing()
 	return 0;
 }
 
-void update_cursor(uint16_t pos)
+void kupdate_cursor(uint16_t pos)
 {
 	outb(0x3D4, 14);
 	outb(0x3D5, (pos >> 8) & 0xFF);
@@ -138,7 +144,7 @@ void kprint(char *s)	//NOLINT
 	}
 
 	// put cursor in place
-	update_cursor((((int)vga_args.vga - VGA_ADDRESS) / 2));
+	kupdate_cursor((((int)vga_args.vga - VGA_ADDRESS) / 2));
 
 	return;	//NOLINT
 }

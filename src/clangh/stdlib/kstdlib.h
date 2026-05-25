@@ -19,6 +19,7 @@ typedef uint8_t bool;
 typedef struct {
 	volatile unsigned char* vga;
 	int line_number;
+	int column_number;
 	bool remove_line_below;
 } VGA_t;
 
@@ -30,3 +31,4 @@ bool kstrcmp(char *s1, char *s2);
 size_t kstrlen(char *s);
 void kclear_vga_buffer();
 void kfree(void *p);
+void kupdate_cursor(uint16_t pos);

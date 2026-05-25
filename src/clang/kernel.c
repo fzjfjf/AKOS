@@ -2,13 +2,6 @@
 #include <keyboard.h>
 #include <shell.h>
 
-// Make and initialize global struct
-VGA_t vga_args = {
-	.vga = (address)(VGA_ADDRESS + 160),	// adjust since initializer prints some text
-	.line_number = 1,
-	.remove_line_below = false,
-};
-
 void kmain()
 {
 	// ========== INITIALIZATIONS ==========
