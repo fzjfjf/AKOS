@@ -82,6 +82,7 @@ void* kmalloc(size_t size)
 			header->next_ptr = p + size + sizeof(heap_mem_header_t);
 			header->size = size;
 			header->is_free = false;
+			kmem_zero(header->ptr, header->ptr + header->size);
 			return (void *)header->ptr;
 		}
 
@@ -89,7 +90,8 @@ void* kmalloc(size_t size)
 
 		if (header->is_free && header->size >= size) {
 			header->is_free = false;
-			return (void *)p + sizeof(heap_mem_header_t);
+			kmem_zero(header->ptr, header->ptr + header->size);
+			return (void *)header->ptr;
 		}
 
 		p = header->next_ptr;

@@ -4,15 +4,28 @@
 
 extern VGA_t vga_args;
 
+void print_OK(char *s, bool r)
+{
+	vga_args.color = 0x0f;
+	if (r) kprint("\r[");
+	else kprint("[");
+	vga_args.color = 0x0a;
+	kprint("OK");
+	vga_args.color = 0x0f;
+	kprint("] ");
+	kprint(s);
+}
+
 void kmain()
 {
 	// ========== INITIALIZATIONS ==========
-	kprint("[OK] Switched to Kernel\n");
+	print_OK("Switched to Kernel\n", false);
+
 	// Initialize heap to zero
 	kprint("[  ] Zeroing heap memory...");
 	kmem_zero(HEAP_START, HEAP_END);
 	// print confirmation message
-	kprint("\r[OK] Zeroed heap memory        \n");
+	print_OK("Zeroed heap memory        \n", true);
 
 	// ========== TESTS ==========
 	// test kmalloc
@@ -24,9 +37,9 @@ void kmain()
 	*test = 'A';
 	kfree(test);
 	test = kmalloc(128);
-	if (test == NULL || *test != 'A') goto kmalloc_error;
+	if (test == NULL || *test == 'A') goto kmalloc_error;
 
-	kprint("\r[OK] kmalloc WORKS              \n");
+	print_OK("kmalloc WORKS              \n", true);
 
 	// ========== SHELL ==========
 	// start shell
@@ -44,7 +57,7 @@ void kmain()
 	// ========== ERROR LABELS ==========
 	kmalloc_error:
 	vga_args.color = 0xf4;
-	kprint("[FAILED] kmalloc DOESN'T WORK, HALTING\n");
+	kprint("\r[FAILED] kmalloc DOESN'T WORK, HALTING\n");
 	goto stop;
 
 

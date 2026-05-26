@@ -12,8 +12,12 @@
 #define false 0
 typedef volatile unsigned char* address;
 //typedef unsigned int size_t;
-//typedef unsigned char byte;
+typedef unsigned char byte;
 typedef uint8_t bool;
+typedef unsigned char uchar;			// this is to semantically diferentiate from byte
+typedef uint16_t word;
+typedef uint32_t dword;
+typedef uint64_t qword;
 
 // structs with global variables
 typedef struct {
@@ -28,7 +32,7 @@ void* kmalloc(size_t size);
 void kprint(char *s);
 int kdo_nothing();
 void kmem_zero(address start, address end);
-bool kstrcmp(char *s1, char *s2);
+bool kstrcmp(char *s1, char *s2);			// returns true if strings are equal
 size_t kstrlen(char *s);
 void kclear_vga_buffer();
 void kfree(void *p);
