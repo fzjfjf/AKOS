@@ -21,6 +21,15 @@ void kmain()
 	// ========== INITIALIZATIONS ==========
 	print_OK("Switched to Kernel\n", false);
 
+	// THIS PART HAS TO BE LIKE THIS, DO NOT CHANGE OR QUESTION
+	// explanation: this is to change the first [OK] to green, the {} are here to make vgap out of scope
+	// initializer.asm should NOT BE changed EXCEPT in case of error
+	{
+		address vgap = (address)VGA_ADDRESS;
+		*(vgap + 3) = 0x0a;
+		*(vgap + 5) = 0x0a;
+	}
+	
 	// Initialize heap to zero
 	kprint("[  ] Zeroing heap memory...");
 	kmem_zero(HEAP_START, HEAP_END);
