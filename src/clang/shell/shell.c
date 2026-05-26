@@ -2,8 +2,6 @@
 #include <keyboard.h>
 #include <kstdlib.h>
 
-typedef void (*program_t)();
-
 void shell(program_t *programs[], char *names[], size_t count)
 {
 	// TODO: add the programs[] support
@@ -22,16 +20,17 @@ void shell(program_t *programs[], char *names[], size_t count)
 	kprint("> ");
 
 	while (1) {
-		c = kgetchar_nb();
-		if (c != 0 && (index < 126 || c == '\n')) {
-			if (c < 0x80 && c >= 0x20) {
-				text[0] = c;
+		c = kgetchar_nb();					// get input
+		if (c != 0 && (index < 126 || c == '\n')) {		// if there is a character and index isnt out of bounds or character is a newline
+			if (c < 0x80 && c >= 0x20) {				// if character is printable
+				text[0] = c;							// this is to make sure kprint can print the character
 				text[1] = '\0';
 				kprint(text);
-				command[index++] = c;
-			} else if (c == '\n') {
-				kprint("\n");
-				command[index++] = '\0';
+				command[index++] = c;					// add the character to the command string
+			} else if (c == '\n') {						// if character is a newline
+				kprint("\n");							// put a newline
+				command[index++] = '\0';				// put a null terminator on the end of command
+				// ===== COMMAND SELECTOR =====
 				if (kstrcmp("exit", command) == true) {
 					return;
 				} else if (kstrcmp("cls", command) == true) {
@@ -43,14 +42,15 @@ void shell(program_t *programs[], char *names[], size_t count)
 					for (int i = 0; i < 4; i++) kprint(help_message[i]);
 				}
 
-				kmem_zero((address)command, (address)command + index);
-				index = 0;
-				kprint("> ");
-			} else if (c == '\b' && index > 0) {
-				command[--index] = '\0';
-				kprint("\r> ");
-				kprint(command);
-				kprint(" \b");
+				kmem_zero((address)command, (address)command + index);		// zero the command
+				index = 0;						// put index to first character
+				kprint("> ");					// print prompt
+			} else if (c == '\b' && index > 0) {	// character is a backspace and index isnt less than 1 to prevent underflow
+				command[--index] = '\0';			// decrement first and put a \0 instead of the last letter
+				kprint("\r> ");					// mov the cursor to the start of the line and print prompt
+				kprint(command);					// print command
+				kprint(" \b");					// idk why this, i dont care tho bc it works - new me: the character is still left
+																	// in the vga buffer so we need to overwrite it and move the cursor back
 			}
 		}
 	}
