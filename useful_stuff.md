@@ -50,3 +50,5 @@ When passing a color it is a hex code like `0x0f`, the first byte (leftmost) is 
 | 0x0D | Light Magenta on Black |
 | 0x0E | Yellow on Black   |
 | 0x0F | White on Black    |
+
+reboot password: 0x83da89ff341ace34 

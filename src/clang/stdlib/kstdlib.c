@@ -14,19 +14,25 @@ VGA_t vga_args = {
 	.line_number = 1,
 	.remove_line_below = false,
 	.column_number = -1,					// -1 since kstdlib.c doesnt use this
-	.color = 0x0f,
+	.color = VGA_WHITE_ON_BLACK,
 };
 
 extern void outb(uint16_t port, uint8_t data);
 
 size_t kstrlen(char *s)
 {
-
 	size_t len = 0;
 	while (s[len] != 0) {
 		len++;
 	}
 	return len;
+}
+
+void reboot(uint64_t passwd)
+{
+	if ((passwd ^ 0x98dfcbab2478249cULL) == 0x1b0542541062eaa8ULL) {
+		outb(0x64,	0xfe);
+	}
 }
 
 bool kstrcmp(char *s1, char *s2)
@@ -127,7 +133,7 @@ void kprint(char *s)	//NOLINT
 			// clear current line and next line 
 			for (int j = 0; j < 320; j+=2) {
 				vga_args.vga[j] = ' ';
-				vga_args.vga[j + 1] = 0x0f;
+				vga_args.vga[j + 1] = VGA_BLACK_ON_BLACK;
 			}
 
 			i++;

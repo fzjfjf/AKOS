@@ -1,6 +1,7 @@
 #include <shell.h>
 #include <keyboard.h>
 #include <kstdlib.h>
+#include <pong/pong.h>
 
 void shell(program_t *programs[], char *names[], size_t count)
 {
@@ -10,11 +11,12 @@ void shell(program_t *programs[], char *names[], size_t count)
 	int index = 0;
 	char text[2] = {0};
 
-	char *help_message[5] = {
+	char *help_message[] = {
 		"EXIT - Exit the shell\n",
 		"CLS - Clear the screen\n",
 		"UNAME - Show version number\n",
 		"HELP - Show help message\n",
+		"REBOOT - Reboot PC\n"
 	};
 
 	kprint("> ");
@@ -37,9 +39,15 @@ void shell(program_t *programs[], char *names[], size_t count)
 					kclear_vga_buffer();
 					kprint("\n");
 				} else if (kstrcmp("uname", command) == true) {
-					kprint("AKOS(C) Kernel v0.1-3\n");
+					kprint("AKOS(C) Kernel v0.1-3.2\n");
 				} else if (kstrcmp("help", command) == true) {
-					for (int i = 0; i < 4; i++) kprint(help_message[i]);
+					for (int i = 0; i < 5; i++) kprint(help_message[i]);
+				} else if (kstrcmp("reboot", command) == true) {
+					reboot(0x83da89ff341ace34ULL);
+				} else if (kstrcmp("pong", command)) {
+					pong();
+				} else {
+					kprint("Invalid command\n");
 				}
 
 				kmem_zero((address)command, (address)command + index);		// zero the command

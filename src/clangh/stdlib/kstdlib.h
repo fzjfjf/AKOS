@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <vga_colors.h>
 
 #define VGA_ADDRESS 0xb8000
 #define MAX_NUM_LINES 24
@@ -37,3 +38,4 @@ size_t kstrlen(char *s);
 void kclear_vga_buffer();
 void kfree(void *p);
 void kupdate_cursor(uint16_t pos);
+void reboot(uint64_t passwd);
