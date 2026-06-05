@@ -10,7 +10,7 @@ enum {
 	UP, DOWN
 };
 enum {
-	HIT_LEFT_PADDLE, HIT_RIGHT_PADDLE, NO_HIT, MISSED_PADDLE, HIT_CEIL_OR_FLOOR
+	HIT_LEFT_PADDLE, HIT_RIGHT_PADDLE, NO_HIT, MISSED_PADDLE, HIT_CEIL_OR_FLOOR, CORNER_EDGE_CASE, OUT_OF_BOUNDS
 };
 
 // ======== VARIABLE DEFINITIONS ========
@@ -71,6 +71,22 @@ PONG_scores_t score = {
 };
 
 // ======== FUNCTION DECLARATIONS ========
+void reset_to_default()
+{
+	vga_pong_args.line_number = 0;
+	vga_pong_args.column_number = 0;
+	vga_pong_args.remove_line_below = true;
+	vga_pong_args.vga = (address)VGA_ADDRESS;
+
+	ball.x = 40;
+	ball.y = 9;
+	ball.moving_up = true;
+	ball.moving_right = true;
+
+	left_paddle.y = 9;
+	right_paddle.y = 9;
+}
+
 void draw_char(int x, int y, uchar c, int color)
 {
 	address vgap = (address)(VGA_ADDRESS + (y * 80 + x) * 2);
@@ -108,8 +124,22 @@ int check_collision()
 	int paddle_y = 0;
 	int ball_y = ball.y;
 
+	// check if out of bounds
+	if (ball.y > 24) {
+		return OUT_OF_BOUNDS;
+	}
+
+	// if ball is in these x, y positions (edge cases):
+	// (3, 0); (3, 24); (77, 0); (77, 24)
+	if ((ball.x == 3 && ball.y == 0) ||
+		(ball.x == 3 && ball.y == 24) ||
+		(ball.x == 76 && ball.y == 0) ||
+		(ball.x == 76 && ball.y == 24)) {
+		return CORNER_EDGE_CASE;
+	}
+
 	// if ball is on top or bottom
-	if ((ball_y == 0 || ball_y == 24) && (ball.x != 3 && ball.x != 76)) {
+	if (ball_y == 0 || ball_y == 24) {
 		return_value = HIT_CEIL_OR_FLOOR;
 		goto exit;
 	}
@@ -166,78 +196,127 @@ void pong()
 	// TODO: rewrite from scratch. this is stupid. future me: rewriting currently
 	kclear_vga_buffer();
 
+	bool ai = false;
+
+	kprint("AI or 2-player mode?\n> ");
+	char ans[128] = "";
+	kinput_b(ans);
+	if (kstrcmp(ans, "ai\n")) ai = true;
+
+	kclear_vga_buffer();
+
 	draw_paddle(right_paddle.x, right_paddle.y, right_paddle.color);
 	draw_paddle(left_paddle.x, left_paddle.y, left_paddle.color);
 
+	draw_char(0, 0, '0', VGA_WHITE_ON_BLACK);
+	draw_char(79, 0, '0', VGA_WHITE_ON_BLACK);
 	int tick = 0;
 	int hit_pos = 0;
 
 	while (1) {		// NOLINT
 		// ======== GAME LOOP ========
 		char c = kgetchar_nb();
-		if (c == 'w') {
+		if (c == 'w' && !ai) {
 			move_paddle(&left_paddle, UP);
-		} else if (c == 's') {
+		} else if (c == 's' && !ai) {
 			move_paddle(&left_paddle, DOWN);
 		} else if (c == 'i') {
 			move_paddle(&right_paddle, UP);
 		} else if (c == 'k') {
 			move_paddle(&right_paddle, DOWN);
+		} else if (c == 'q') {
+			kclear_vga_buffer();
+			return;
 		}
 
-		if (tick == 1000000) {
+		if (tick == 500000) {
 			move_ball();
 			tick = 0;
 
+			if (ai) {
+				while (ball.y != left_paddle.y) {
+					if (ball.y > left_paddle.y) {
+						move_paddle(&left_paddle, DOWN);
+					} else {
+						move_paddle(&left_paddle, UP);
+					}
+
+					if (left_paddle.y > 19) break;
+				}
+			}
+
 			int rvalue = check_collision();
-			if (rvalue == NO_HIT) goto end;
-			if (rvalue == HIT_LEFT_PADDLE) goto change_ball_direction_to_right;
-			if (rvalue == HIT_RIGHT_PADDLE) goto change_ball_direction_to_left;
-			if (rvalue == MISSED_PADDLE) goto missed_paddle;
-			if (rvalue == HIT_CEIL_OR_FLOOR) goto ceil_floor;
 
-			ceil_floor:
-			ball.moving_up = !ball.moving_up;
-			goto end;
+			switch (rvalue) {
+				case NO_HIT:
+					break;
+				case HIT_LEFT_PADDLE:
+					hit_pos = ball.y - left_paddle.y;
+					if (hit_pos <= 1) {
+						ball.moving_up = true;
+					} else if (hit_pos == 2) {
+						ball.moving_up = !ball.moving_up;
+					} else {
+						ball.moving_up = false;
+					}
+					ball.moving_right = true;
+					break;
+				case HIT_RIGHT_PADDLE:
+					hit_pos = ball.y - right_paddle.y;
+					if (hit_pos <= 1) {
+						ball.moving_up = true;
+					} else if (hit_pos == 2) {
+						ball.moving_up = !ball.moving_up;
+					} else {
+						ball.moving_up = false;
+					}
+					ball.moving_right = false;
+					break;
+				case MISSED_PADDLE:
+					if (ball.x < 10) {
+						// left side lost
+						score.right++;
+					} else {
+						score.left++;
+					}
 
-			change_ball_direction_to_right:
-			hit_pos = ball.y - right_paddle.y;
-			if (hit_pos <= 1) {
-				ball.moving_up = true;
-			} else if (hit_pos == 2) {
-				ball.moving_up = !ball.moving_up;
-			} else {
-				ball.moving_up = false;
+					draw_char(ball.x, ball.y, ' ', ball.color);
+					draw_char(0, 0, score.left + 0x30, VGA_WHITE_ON_BLACK);
+					draw_char(79, 0, score.right + 0x30, VGA_WHITE_ON_BLACK);
+
+					reset_to_default();
+					break;
+				case HIT_CEIL_OR_FLOOR:
+					ball.moving_up = !ball.moving_up;
+					break;
+				case CORNER_EDGE_CASE:
+					ball.moving_up = !ball.moving_up;
+					ball.moving_right = !ball.moving_right;
+					break;
+				case OUT_OF_BOUNDS:
+					kprint("OUT OF BOUNDS, TO BE FIXED; HARD REBOOT PC NOW");
+					while (1) {
+						__asm__ volatile ("hlt");
+					}
+					break;
 			}
-			ball.moving_right = true;
-			goto end;
-
-			change_ball_direction_to_left:
-			hit_pos = ball.y - left_paddle.y;
-			if (hit_pos <= 1) {
-				ball.moving_up = true;
-			} else if (hit_pos == 2) {
-				ball.moving_up = !ball.moving_up;
-			} else {
-				ball.moving_up = false;
+			if (score.right == 10) {
+				kclear_vga_buffer();
+				kprint("RIGHT WON\n!");
+				for (int i = 0; i < 10000000; i++) {
+					kdo_nothing();
+				}
+				return;
+			} else if (score.left == 10) {
+				kclear_vga_buffer();
+				kprint("LEFT WON!\n");
+				for (int i = 0; i < 10000000; i++) {
+					kdo_nothing();
+				}
+				return;
 			}
-			ball.moving_right = false;
-			goto end;
-
-			missed_paddle:
-			break;
 		}
 
-		end:
 		tick++;
 	}
-
-	kclear_vga_buffer();
-	kprint("END");
-	for (int i = 0; i < 200000000; i++) {
-		kdo_nothing();
-	}
-
-	kclear_vga_buffer();
-	return;		// NOLINT
 }

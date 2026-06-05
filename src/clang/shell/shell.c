@@ -16,7 +16,8 @@ void shell(program_t *programs[], char *names[], size_t count)
 		"CLS - Clear the screen\n",
 		"UNAME - Show version number\n",
 		"HELP - Show help message\n",
-		"REBOOT - Reboot PC\n"
+		"REBOOT - Reboot PC\n",	
+		"PONG - Play pong!\n"
 	};
 
 	kprint("> ");
@@ -41,7 +42,7 @@ void shell(program_t *programs[], char *names[], size_t count)
 				} else if (kstrcmp("uname", command) == true) {
 					kprint("AKOS(C) Kernel v0.1-3.2\n");
 				} else if (kstrcmp("help", command) == true) {
-					for (int i = 0; i < 5; i++) kprint(help_message[i]);
+					for (int i = 0; i < 6; i++) kprint(help_message[i]);
 				} else if (kstrcmp("reboot", command) == true) {
 					reboot(0x83da89ff341ace34ULL);
 				} else if (kstrcmp("pong", command)) {
