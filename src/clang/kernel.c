@@ -43,7 +43,7 @@ void kmain()
 	*test = 'A';
 	kfree(test);
 	test = kmalloc(128);
-	if (test == NULL || *test == 'A') goto kmalloc_error;
+	if (test == NULL || *test == 'A') goto kmalloc_error;	
 
 	print_OK("kmalloc WORKS              \n", true);
 
