@@ -1,7 +1,7 @@
 #pragma once
 
-#include <keyboard.h>
-#include <kstdlib.h>
+#include <keyboard/keyboard.h>
+#include <stdlib/kstdlib.h>
 
 typedef void (*program_t)();
 

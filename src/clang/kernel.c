@@ -1,7 +1,6 @@
 #include <kstdlib.h>
 #include <keyboard.h>
 #include <shell.h>
-#include <pong/pong.h>
 
 extern VGA_t vga_args;
 

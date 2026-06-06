@@ -73,6 +73,7 @@ PONG_scores_t score = {
 // ======== FUNCTION DECLARATIONS ========
 void reset_to_default()
 {
+	// just reset everything to the default values - needed for reseting after scoring
 	vga_pong_args.line_number = 0;
 	vga_pong_args.column_number = 0;
 	vga_pong_args.remove_line_below = true;
@@ -89,6 +90,7 @@ void reset_to_default()
 
 void draw_char(int x, int y, uchar c, int color)
 {
+	// draws a character to the screen using the formula
 	address vgap = (address)(VGA_ADDRESS + (y * 80 + x) * 2);
 	*vgap = c;
 	*(vgap + 1) = color;
@@ -96,6 +98,7 @@ void draw_char(int x, int y, uchar c, int color)
 
 void draw_paddle(int x, int y, int color)
 {
+	// calls draw_char repeatedly to draw the paddle
 	for (int i = 0; i < 5; i++) {
 		if (y + i> 24) continue;
 		draw_char(x, y + i, 0xDB, color);
@@ -104,12 +107,13 @@ void draw_paddle(int x, int y, int color)
 
 void move_paddle(PONG_paddle_t *paddle, int direction)
 {
-	if (paddle->y >= 0) {
-		if (direction == UP && paddle->y > 0) {
+	if (paddle->y >= 0) {		// make sure we are not writing to random memory
+		if (direction == UP && paddle->y > 0) {		// make sure y pos doesnt go negative since we subtact
 			paddle->y--;
 			draw_paddle(paddle->x, paddle->y, paddle->color);
-			draw_char(paddle->x, paddle->y + 5, ' ', VGA_BLACK_ON_BLACK);
-		} else if (direction == DOWN && paddle->y < MAX_Y - 4) {
+			draw_char(paddle->x, paddle->y + 5, ' ', VGA_BLACK_ON_BLACK);		// erase the part of paddle that is not needed
+		} else if (direction == DOWN && paddle->y < MAX_Y - 4) {		// make sure y pos doesnt go above 19,
+																		// since y is top most block of paddle
 			paddle->y++;
 			draw_paddle(paddle->x, paddle->y, paddle->color);
 			draw_char(paddle->x, paddle->y - 1, ' ', VGA_BLACK_ON_BLACK);
@@ -180,34 +184,37 @@ int check_collision()
 
 int move_ball()
 {
-	draw_char(ball.x, ball.y, ' ', ball.color);
+	draw_char(ball.x, ball.y, ' ', ball.color);		// remove ball from current position
 
+	// bunch of checks
 	if (ball.moving_right) ball.x++;
 	if (!ball.moving_right) ball.x--;
 	if (ball.moving_up) ball.y--;
 	if (!ball.moving_up) ball.y++;
 
-	draw_char(ball.x, ball.y, 0xdb, ball.color);
+	draw_char(ball.x, ball.y, 0xdb, ball.color);		// redraw ball
 }
 
 // ======== MAIN FUNCTION ========
 void pong()
 {
-	// TODO: rewrite from scratch. this is stupid. future me: rewriting currently
-	kclear_vga_buffer();
+	// TODO: rewrite from scratch. this is stupid. future me: rewriting currently.	future future me: rewritten
+	kclear_vga_buffer();		// clear screen
 
 	bool ai = false;
 
-	kprint("AI or 2-player mode?\n> ");
+	kprint("AI or 2-player mode?\n> ");	// ask for mode
 	char ans[128] = "";
 	kinput_b(ans);
 	if (kstrcmp(ans, "ai\n")) ai = true;
 
-	kclear_vga_buffer();
+	kclear_vga_buffer();		// clear screen again
 
+	// draw paddles
 	draw_paddle(right_paddle.x, right_paddle.y, right_paddle.color);
 	draw_paddle(left_paddle.x, left_paddle.y, left_paddle.color);
 
+	// put score on corners, 0 at start
 	draw_char(0, 0, '0', VGA_WHITE_ON_BLACK);
 	draw_char(79, 0, '0', VGA_WHITE_ON_BLACK);
 	int tick = 0;
@@ -216,6 +223,7 @@ void pong()
 	while (1) {		// NOLINT
 		// ======== GAME LOOP ========
 		char c = kgetchar_nb();
+		// check if key pressed is a key for moving
 		if (c == 'w' && !ai) {
 			move_paddle(&left_paddle, UP);
 		} else if (c == 's' && !ai) {
@@ -285,6 +293,13 @@ void pong()
 					draw_char(79, 0, score.right + 0x30, VGA_WHITE_ON_BLACK);
 
 					reset_to_default();
+					kclear_vga_buffer();
+					draw_paddle(left_paddle.x, left_paddle.y, left_paddle.color);
+					draw_paddle(right_paddle.x, right_paddle.y, right_paddle.color);
+
+					draw_char(0, 0, score.left + 0x30, VGA_WHITE_ON_BLACK);
+					draw_char(79, 0, score.right + 0x30, VGA_WHITE_ON_BLACK);
+
 					break;
 				case HIT_CEIL_OR_FLOOR:
 					ball.moving_up = !ball.moving_up;
