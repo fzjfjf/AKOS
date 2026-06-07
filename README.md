@@ -6,13 +6,28 @@ AKOS is a 32 bit operating system.
 
 ## How to run
 
-To run AKOS, you need to:
+### Prerequisites
+
+To build AKOS, you need to have:
+
+- GNU GCC Compiler
+- NASM
+- LD
+- qemu-system-i386 or qemu-system-x86_64
+
+### Building
+
+To build AKOS, you need to:
 
 - clone the repo
 - make `./compiled/bin` and `compiled/obj` directories
 - run make
 
 Note: Should be done in a Linux environment. The compiler used is GNU GCC, the folders `clang` and `clangh` have nothing to do with the clang compiler.
+
+### Running
+
+After AKOS is built, run `make run`
 
 ## Features
 
