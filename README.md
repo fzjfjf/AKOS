@@ -54,3 +54,4 @@ Here is a list of features i plan to add:
 - Interrupts
 - Kernel/User mode (ring0 and ring3)
 - System calls (`syscall`/`int 0x80`)
+- FAT 12/16 filesystem support
