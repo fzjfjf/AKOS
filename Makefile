@@ -1,13 +1,13 @@
 CF = -m32 -c -ffreestanding --freestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong -Isrc/clangh/utilities
 O = compiled/obj
 
-OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/signature.o $(O)/kpanic.o
+OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/kpanic.o $(O)/utilities.o $(O)/signature.o
 
 all: disk.img
 
-compiled/obj/utils.o: src/clang/utilities.c
+compiled/obj/utilities.o: src/clang/utilities/utilities.c
 	@echo "Building utilities..."
-	@gcc $(CF) src/clang/utilities/utilities.h -o compiled/obj/utils.o
+	@gcc $(CF) src/clang/utilities/utilities.c -o compiled/obj/utilities.o
 
 compiled/obj/kpanic.o: src/asm/kpanic.asm
 	@echo "Building KPANIC..."

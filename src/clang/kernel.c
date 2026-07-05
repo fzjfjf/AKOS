@@ -2,7 +2,7 @@
 #include <keyboard.h>
 #include <shell.h>
 #include <pong/pong.h>
-#include <utilities.h>
+#include <utilities/utilities.h>
 
 extern VGA_t vga_args;
 
@@ -52,12 +52,12 @@ void kmain()
 	// ========== SHELL ==========
 	// start shell
 	program_t programs[] = {
-		pong,
+		pong, sl
 	};
 	char *program_names[] = {
-		"pong",
+		"pong", "sl"
 	};
-	shell(programs, program_names, 1);
+	shell(programs, program_names, 2);
 
 	// notify that shell ended
 	kprint("\nSHELL ended\n");
