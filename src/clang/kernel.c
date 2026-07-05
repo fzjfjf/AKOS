@@ -1,6 +1,8 @@
 #include <kstdlib.h>
 #include <keyboard.h>
 #include <shell.h>
+#include <pong/pong.h>
+#include <utilities.h>
 
 extern VGA_t vga_args;
 
@@ -24,8 +26,8 @@ void kmain()
 	// THIS PART HAS TO BE LIKE THIS, DO NOT CHANGE OR QUESTION
 	// explanation: this is to change the first [OK] to green
 	// initializer.asm should NOT BE changed EXCEPT in case of error
-	*(address)(VGA_ADDRESS + 3) = VGA_LIGHT_GREEN_ON_BLACK;
-	*(address)(VGA_ADDRESS + 5) = VGA_LIGHT_GREEN_ON_BLACK;
+	*(address8)(VGA_ADDRESS + 3) = VGA_LIGHT_GREEN_ON_BLACK;
+	*(address8)(VGA_ADDRESS + 5) = VGA_LIGHT_GREEN_ON_BLACK;
 
 	// Initialize heap to zero
 	kprint("[  ] Zeroing heap memory...");
@@ -49,9 +51,13 @@ void kmain()
 
 	// ========== SHELL ==========
 	// start shell
-	program_t *programs[] = {};
-	char *program_names[] = {};
-	shell(programs, program_names, 0);
+	program_t programs[] = {
+		pong,
+	};
+	char *program_names[] = {
+		"pong",
+	};
+	shell(programs, program_names, 1);
 
 	// notify that shell ended
 	kprint("\nSHELL ended\n");

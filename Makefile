@@ -1,9 +1,17 @@
-CF = -m32 -c -ffreestanding --freestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong
+CF = -m32 -c -ffreestanding --freestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong -Isrc/clangh/utilities
 O = compiled/obj
 
-OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/signature.o
+OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/signature.o $(O)/kpanic.o
 
 all: disk.img
+
+compiled/obj/utils.o: src/clang/utilities.c
+	@echo "Building utilities..."
+	@gcc $(CF) src/clang/utilities/utilities.h -o compiled/obj/utils.o
+
+compiled/obj/kpanic.o: src/asm/kpanic.asm
+	@echo "Building KPANIC..."
+	@nasm -f elf32 src/asm/kpanic.asm -o compiled/obj/kpanic.o
 
 compiled/obj/idtc.o: src/clang/idt.c
 	@echo "Building IDT (C part)..."

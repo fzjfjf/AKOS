@@ -2,15 +2,15 @@
 #include <keyboard.h>
 
 typedef struct {
-	address ptr;
-	address next_ptr;
+	address8 ptr;
+	address8 next_ptr;
 	size_t size;
 	bool is_free;
 } heap_mem_header_t;
 
 // Make and initialize global struct
 VGA_t vga_args = {
-	.vga = (address)(VGA_ADDRESS + 160),	// adjust since initializer prints some text
+	.vga = (address8)(VGA_ADDRESS + 160),	// adjust since initializer prints some text
 	.line_number = 1,
 	.remove_line_below = false,
 	.column_number = -1,					// -1 since kstdlib.c doesnt use this
@@ -55,7 +55,7 @@ bool kstrcmp(char *s1, char *s2)
 	return true;
 }
 
-void kmem_zero(address start, address end)
+void kmem_zero(address8 start, address8 end)
 {
 	uint32_t *p = (uint32_t *)start;
 	while (p < (uint32_t *)end) {
@@ -80,7 +80,7 @@ void kupdate_cursor(uint16_t pos)
 void* kmalloc(size_t size)
 {
 	// TODO: add reusing blocks instaed of only beaing a bump allocator - fixed
-	address p = HEAP_START;
+	address8 p = HEAP_START;
 	while (p < HEAP_END) {
 		if (p[0] == 0) {
 			heap_mem_header_t *header = (heap_mem_header_t *)p;
@@ -125,10 +125,10 @@ void kprint(char *s)	//NOLINT
 			// 10 == line feed ('\n'), need to switch to new line
 			if (vga_args.line_number >= MAX_NUM_LINES) {
 				vga_args.line_number = 0;
-				vga_args.vga = (address)VGA_ADDRESS;
+				vga_args.vga = (address8)VGA_ADDRESS;
 			} else {
 				vga_args.line_number++;
-				vga_args.vga = vga_args.line_number * 160 + (address)VGA_ADDRESS;
+				vga_args.vga = vga_args.line_number * 160 + (address8)VGA_ADDRESS;
 			}
 			// clear current line and next line 
 			for (int j = 0; j < 320; j+=2) {
@@ -139,7 +139,7 @@ void kprint(char *s)	//NOLINT
 			i++;
 			continue;
 		} else if (s[i] == 13) {
-			vga_args.vga = (address)(VGA_ADDRESS + vga_args.line_number * 160);
+			vga_args.vga = (address8)(VGA_ADDRESS + vga_args.line_number * 160);
 			i++;
 		} else if (s[i] == '\b') {
 			vga_args.vga -= 2;
@@ -153,6 +153,9 @@ void kprint(char *s)	//NOLINT
 		vga_args.vga++;
 		i++;
 
+		// we need to check if the last character is on the 79th position. to do that we need to get the x position, /
+		// which we do by doing the formula to get linear position and subtracting number of characters times number /
+		// of rows
 		if (((int)(vga_args.vga - VGA_ADDRESS) / 2 ) - (vga_args.line_number) * 80 > 80) {
 			vga_args.line_number++;
 		}
@@ -160,6 +163,8 @@ void kprint(char *s)	//NOLINT
 	}
 
 	// put cursor in place
+	// vga is a pointer, position is not x,y but linear, so to get the position we need to subtract by the starting /
+	// address of vga buffer and divide by half because one character is two bytes
 	kupdate_cursor((((int)vga_args.vga - VGA_ADDRESS) / 2));
 
 	return;	//NOLINT
@@ -167,10 +172,10 @@ void kprint(char *s)	//NOLINT
 
 void kclear_vga_buffer()
 {
-	address vga_p = (address)VGA_ADDRESS;
+	address8 vga_p = (address8)VGA_ADDRESS;
 	for (int i = 0; i < (MAX_NUM_LINES + 1) * 80 * 2; i++) {
 		vga_p[i] = 0;
 	}
-	vga_args.vga = (address)VGA_ADDRESS;
+	vga_args.vga = (address8)VGA_ADDRESS;
 	vga_args.line_number = 0;
 }

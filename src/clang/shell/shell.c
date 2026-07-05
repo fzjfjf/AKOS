@@ -1,23 +1,61 @@
 #include <shell.h>
 #include <keyboard.h>
 #include <kstdlib.h>
-#include <pong/pong.h>
 
-void shell(program_t *programs[], char *names[], size_t count)
+extern void kpanic();
+
+void dispatcher(char *command, int index, char *help_message[],				// for built in commands
+				program_t programs[], char *names[], size_t count)			// for programs passed from kernel
 {
 	// TODO: add the programs[] support
+
+	if (kstrcmp("cls", command) == true) {
+		kclear_vga_buffer();
+		kprint("\n");
+	} else if (kstrcmp("uname", command) == true) {
+		kprint("AKOS(C) Kernel v0.1-3.2\n");
+	} else if (kstrcmp("help", command) == true) {
+		for (int i = 0; i < 4; i++) {
+			kprint(help_message[i]);
+		}
+		kprint("\nOther commands or programs:\n");
+		for (int i = 0; i < count; i++) {
+			kprint(names[i]);
+			kprint("\n");
+		}
+
+	} else if (kstrcmp("reboot", command) == true) {
+		reboot(0x83da89ff341ace34ULL);
+	} else if (kstrcmp("debugpanic", command) == true) {
+		kpanic();
+	} else if (index == 1) {
+
+	} else {
+		// first go through the program function pointer array
+		for (int i = 0; i < count; i++) {
+			if (kstrcmp(command, names[i]) == true) {
+				programs[i](0, &command);
+				return;
+			}
+		}
+
+		// didnt match any programs, now say invalid command
+		kprint("Invalid command!\n");
+	}
+}
+
+void shell(program_t programs[], char *names[], size_t count)
+{
 	char command[128] = {0};
 	unsigned char c = ' ';
 	int index = 0;
 	char text[2] = {0};
 
 	char *help_message[] = {
-		"EXIT - Exit the shell\n",
 		"CLS - Clear the screen\n",
 		"UNAME - Show version number\n",
 		"HELP - Show help message\n",
-		"REBOOT - Reboot PC\n",	
-		"PONG - Play pong!\n"
+		"REBOOT - Reboot PC\n",
 	};
 
 	kprint("> ");
@@ -33,25 +71,10 @@ void shell(program_t *programs[], char *names[], size_t count)
 			} else if (c == '\n') {						// if character is a newline
 				kprint("\n");							// put a newline
 				command[index++] = '\0';				// put a null terminator on the end of command
-				// ===== COMMAND SELECTOR =====
-				if (kstrcmp("exit", command) == true) {
-					return;
-				} else if (kstrcmp("cls", command) == true) {
-					kclear_vga_buffer();
-					kprint("\n");
-				} else if (kstrcmp("uname", command) == true) {
-					kprint("AKOS(C) Kernel v0.1-3.2\n");
-				} else if (kstrcmp("help", command) == true) {
-					for (int i = 0; i < 6; i++) kprint(help_message[i]);
-				} else if (kstrcmp("reboot", command) == true) {
-					reboot(0x83da89ff341ace34ULL);
-				} else if (kstrcmp("pong", command)) {
-					pong();
-				} else {
-					kprint("Invalid command\n");
-				}
 
-				kmem_zero((address)command, (address)command + index);		// zero the command
+				dispatcher(command, index, help_message, programs, names, count);
+
+				kmem_zero((address8)command, (address8)command + index);		// zero the command
 				index = 0;						// put index to first character
 				kprint("> ");					// print prompt
 			} else if (c == '\b' && index > 0) {	// character is a backspace and index isnt less than 1 to prevent underflow

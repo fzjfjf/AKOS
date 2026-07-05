@@ -1,3 +1,3 @@
 #pragma once
 
-void pong();
+void pong(int argc, char *argv[]);

@@ -36,7 +36,7 @@ typedef struct {
 
 // ======== VARIABLE DECLARATIONS ========
 VGA_t vga_pong_args = {
-	.vga = (address)VGA_ADDRESS,
+	.vga = (address8)VGA_ADDRESS,
 	.line_number = 0,
 	.column_number = 0,
 	.color = VGA_BLACK_ON_BLACK,
@@ -77,7 +77,7 @@ void reset_to_default()
 	vga_pong_args.line_number = 0;
 	vga_pong_args.column_number = 0;
 	vga_pong_args.remove_line_below = true;
-	vga_pong_args.vga = (address)VGA_ADDRESS;
+	vga_pong_args.vga = (address8)VGA_ADDRESS;
 
 	ball.x = 40;
 	ball.y = 9;
@@ -91,7 +91,7 @@ void reset_to_default()
 void draw_char(int x, int y, uchar c, int color)
 {
 	// draws a character to the screen using the formula
-	address vgap = (address)(VGA_ADDRESS + (y * 80 + x) * 2);
+	address8 vgap = (address8)(VGA_ADDRESS + (y * 80 + x) * 2);
 	*vgap = c;
 	*(vgap + 1) = color;
 }
@@ -196,7 +196,7 @@ int move_ball()
 }
 
 // ======== MAIN FUNCTION ========
-void pong()
+void pong(int argc, char *argv[])
 {
 	// TODO: rewrite from scratch. this is stupid. future me: rewriting currently.	future future me: rewritten
 	kclear_vga_buffer();		// clear screen

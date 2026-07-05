@@ -6,12 +6,14 @@
 
 #define VGA_ADDRESS 0xb8000
 #define MAX_NUM_LINES 24
-#define HEAP_START (address)0xb0000000
-#define HEAP_END (address)0xbfffffff
+#define HEAP_START (address8)0xb0000000
+#define HEAP_END (address8)0xbfffffff
 
 #define true 1
 #define false 0
-typedef volatile unsigned char* address;
+typedef volatile unsigned char* address8;
+typedef volatile uint16_t* address16;
+typedef volatile uint32_t* address32;
 //typedef unsigned int size_t;
 typedef unsigned char byte;
 typedef uint8_t bool;
@@ -32,7 +34,7 @@ typedef struct {
 void* kmalloc(size_t size);
 void kprint(char *s);
 int kdo_nothing();
-void kmem_zero(address start, address end);
+void kmem_zero(address8 start, address8 end);
 bool kstrcmp(char *s1, char *s2);			// returns true if strings are equal
 size_t kstrlen(char *s);
 void kclear_vga_buffer();

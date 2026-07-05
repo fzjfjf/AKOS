@@ -5,7 +5,7 @@ global inb
 
 outb:
     mov edx, [esp + 4]                  ; get first two arguments
-    mov eax, [esp + 8]                  ;
+    mov eax, [esp + 8]
 
     out dx, al
 
