@@ -4,3 +4,6 @@ obj/
 *legacy*
 *.img
 .idea
+*.txt
+*.log*
+*cache*
