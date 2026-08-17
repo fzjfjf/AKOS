@@ -1,8 +1,8 @@
 #include <kstdlib.h>
-#include <keyboard.h>
-#include <shell.h>
+#include <shell/shell.h>
 #include <pong/pong.h>
 #include <utilities/utilities.h>
+#include <idt.h>
 
 extern VGA_t vga_args;
 
@@ -22,6 +22,8 @@ void kmain()
 {
 	// ========== INITIALIZATIONS ==========
 	print_OK("Switched to Kernel\n", false);
+	load_idt();
+	print_OK("IDT Loaded\n", false);
 
 	// THIS PART HAS TO BE LIKE THIS, DO NOT CHANGE OR QUESTION
 	// explanation: this is to change the first [OK] to green
@@ -59,7 +61,7 @@ void kmain()
 	};
 	shell(programs, program_names, 2);
 
-	// notify that shell ended
+	// notify that shell ended, if shell for some reason exited
 	kprint("\nSHELL ended\n");
 
 	// print that there is nothing more to execute, and stop

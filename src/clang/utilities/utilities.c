@@ -32,15 +32,17 @@ void sl(int argc, char **argv)
 "                                                                                "
 "                                                                                ";
 
-	address8 vga = (address8)VGA_ADDRESS;
+	// address8 vga = (address8)VGA_ADDRESS;
+	//
+	//
+	// for (int i = 0; i < 2000; i++) {
+	// 	*vga = voz[i];
+	// 	vga++;
+	// 	*vga = VGA_WHITE_ON_BLACK;
+	// 	vga++;
+	// }
 
-
-	for (int i = 0; i < 2000; i++) {
-		*vga = voz[i];
-		vga++;
-		*vga = VGA_WHITE_ON_BLACK;
-		vga++;
-	}
+	kprint(voz);
 
 
 	while (1) {		// NOLINT

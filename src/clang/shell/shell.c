@@ -13,7 +13,7 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 		kclear_vga_buffer();
 		kprint("\n");
 	} else if (kstrcmp("uname", command) == true) {
-		kprint("AKOS(C) Kernel v0.1-3.2\n");
+		kprint("AKOS(C) Kernel v0.1-4\n");
 	} else if (kstrcmp("help", command) == true) {
 		for (int i = 0; i < 4; i++) {
 			kprint(help_message[i]);
@@ -28,6 +28,11 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 		reboot(0x83da89ff341ace34ULL);
 	} else if (kstrcmp("debugpanic", command) == true) {
 		kpanic();
+	} else if (kstrcmp("debugtestgpf", command) == true) {
+		__asm__ volatile("int $13");
+	} else if (kstrcmp("debugcorruptstack", command) == true) {
+		for (int i = 0; i < 100; i++) __asm__ volatile("pop %eax");
+		for (int i = 0; i < 100; i++) __asm__ volatile("push $0xffffffff");
 	} else if (index == 1) {
 
 	} else {

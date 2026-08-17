@@ -2,135 +2,198 @@
 
 global kpanic
 
-
-print:
-	; expects:
-	; eax - vga pointer
-	; ebx - text pointer
-	; string MUST BE null terminated
-	pushad									; save registers to not destroy them
-
-	xor ecx, ecx							; use this to hold the char
-	print_loop_1_start:
-		mov byte cl, [ebx]					; get one char
-		cmp cl, 0							; if null terminator
-		je print_loop_1_end					; go to end
-
-		inc ebx								; increment text pointer
-
-		mov byte [eax], cl					; mov char to vga pointer
-		mov byte [eax + 1], 0x1F			; mov attribute to vga pointer plus one
-
-		add eax, 2 							; move pointer to next char position
-		jmp print_loop_1_start				; go back to start of loop
-	print_loop_1_end:
-
-	popad									; restore registers
-	ret
-
-
-convert_to_hex:
-	; register value is in eax
-	push eax								; save eax
-	push ebx
-	push ecx
-
-	and eax, 0x0F							; isolate last four bits (nibble)
-
-	cmp eax, 10
-	jb L0_9
-	jae LA_F
-
-	LA_F:
-		add eax, 0x37
-		jmp end
-
-	L0_9:
-		add eax, 0x30
-
-	end:
-	mov edi, eax
-	; restore registers back
-	pop ecx
-	pop ebx
-	pop eax
-
-	pop ebp									; return address here
-	push edi								; put returned char above return address
-	push ebp								; push return address back
-	ret
+; if we are here, shit is f***ed up BAD. we are not going back from here, so we can do whatever we want.
 
 kpanic:
-    ; we go here if shit is f***ed. we never come back from this, so we can do some things we usually wouldnt.
-    ; first, put esp back to start of stack, we need the stack to work
-    mov [esp_value], esp					; save the location of the stack, we need it
-    mov esp, 0x90000
+	; first lets get the esp value
+	mov [last_esp], esp
+	; now lets get the eip value
+	mov esp, [esp]			; we can destroy esp here since we will set it up later
+	mov [last_eip], esp
 
-    cli                                     ; turn off interrupts, we dont want this procedure to be interrupted
+	; set up new stack on safe location
+	mov esp, 0x90000
 
-    ; now push all registers to stack, so we can use them later without destroying data
-    ; push segment registers manually
-    push cs
-    push ds
-    push ss
-    push es
-    push fs
-    push gs
-    pushf                                   ; push eflags
-    pushad                                  ; push 8 general registers
+	; disable interrupts
+	cli
 
-	; get the eip of last instruction before `call kpanic`
-	mov eax, [esp_value]
-	mov [last_eip], eax
+	; save EVERYTHING (esp gets the old adress instead of this one
+	push cs
+	push ds
+	push ss
+	push es
+	push fs
+	push gs
+	pushf
 
-    ; now fill vga screen with blue color
-    mov eax, [vga_ptr]
-    xor ebx, ebx
-    loop_start1:
-        mov byte [eax], ' '
-        inc eax
-        mov byte [eax], 0x11
-        inc eax
+	push edi
+	push esi
+	push ebp
+	push dword [last_esp]
+	push ebx
+	push edx
+	push ecx
+	push eax
 
-        inc ebx
-
-        cmp ebx, 2000
-        jne loop_start1
-    end_loop1:
-    mov dword [vga_ptr], 0xb8000					; reset vga pointer
-
-	; now print kernel panic message
-	mov eax, [vga_ptr]
-	mov ebx, text
-	call print
-
-	mov dword eax, [vga_ptr]
-    add eax, 160
-    mov dword [vga_ptr], eax
-
-	mov eax, [vga_ptr]
-	mov ebx, text2
-	call print
-
-	mov dword eax, [vga_ptr]
-	add eax, 160
-	mov dword [vga_ptr], eax
+	push dword [last_eip]					; push this too to do everything in one loop
 
 
+	call fill_screen_blue					; clear the screen
+
+	mov eax, text1							; print kernel panic message
+	call print_str
+
+	mov byte [row], 2
+
+	; here we need to print all registers, and their name before them, found in array text_registers
+	mov eax, 0								; clear eax
+	mov ebx, text_registers					; put the ptr in ebx
+	mov ecx, 0								; index to know when to stop, we are printing 16 registers
+	start_loop3:
+		cmp ecx, 16							; check if we printed all registers
+		jge end_loop3
+
+		mov eax, ebx
+		call print_str
+
+		start_loop4:
+			; we just need to increment ebx until we are after the null terminator
+			inc ebx
+			cmp byte [ebx], 0
+			je end_loop4
+
+			jmp start_loop4
+		end_loop4:
+		inc ebx
+
+		pop eax
+		call print_hex
+
+		inc byte [row]
+		mov byte [col], 0
+		inc ecx								; dont forget!
+		jmp start_loop3
+	end_loop3:
 
 
 
 
-
-    halt_loop:
-        ; halt indefinitely
-        cli
-        hlt
-        jmp halt_loop
+	halt_loop:
+		cli
+		hlt
+		jmp halt_loop
 
 
-vga_ptr: dd 0xB8000
-text: db "KERNEL PANIC!", 0
-text2: db "REGISTERS:", 0
-last_eip: dd 0x0
-esp_value: dd 0x0
+print_str:
+	; takes a string and reapetedly calls print_char
+	; eax contains the str pointer
+	pushad
+
+	mov ebx, eax 				; al (eax) needs to have the char, not ptr
+
+	start_loop2:
+		mov al, byte [ebx]		; move char to al
+		cmp al, 0				; check for null terminator
+		je end_loop2			; if null terminator end
+
+		call print_char			; print char to console
+
+		inc ebx					; increment ptr
+		jmp start_loop2			; go to start
+	end_loop2:
+
+	popad
+	ret
+
+print_hex:
+	; print a hex number
+	; eax has the number
+	; formula for printing to VGA with col and row is: 0xb8000 + (row * 80 + col) * 2
+	pushad 						; save all registers
+
+	; ======== CONVERT ========
+	; first we need to convert the hex num into a string. we are storing the cha
+	mov eax, test_str
+	call print_str
+	popad						; pop them back
+	ret
+
+print_char:
+	; print one character
+	; eax (al) contains the char to print
+
+	pushad
+
+	mov edx, eax				; now edx contains the char
+	movzx ebx, byte [col]
+	movzx eax, byte [row]		; mow the row into eax
+	imul eax, 80				; multiply by 80		0xb8000 + (__row * 80__ + col) * 2
+	add eax, ebx				; add column 			0xb8000 + (__80row + col__) * 2
+	shl eax, 1					; multiply by 2			0xb8000 + __80row+col * 2__
+	add eax, 0xb8000  			; finally add offset 	__0xb8000 + 80row+col*2__
+
+	; eax now contains the address to put char into
+	mov byte [eax], dl			; put char into memory
+
+	; now we need to advance col and row
+	; condition:
+	; if col is leass than 79, increment col
+	; else if col is greater than or equal to 79, set col to zero and
+	; 	if row is less than 24 increment row
+	; 	else set row and col to zero
+	if1:
+		cmp byte [col], 79
+		jge if1_true
+		if1_false:
+			inc byte [col]
+			jmp endif1
+		if1_true:
+			mov byte [col], 0
+			if2:
+				cmp byte [row], 24
+				jge if2_true
+				if2_false:
+					inc byte [row]
+					jmp endif2
+				if2_true:
+					mov byte [row], 0
+					jmp endif2
+			endif2:
+	endif1:
+
+	popad
+	ret
+
+fill_screen_blue:
+	; fill the screen with blue color
+	; VGA 80x25 has 2000 characters
+	push eax					; save eax since only eax is used
+
+	mov eax, 0xb8000			; mov starting adress of VGA MMIO into eax
+	start_loop1:
+		cmp eax, 0xb8fa0		; compare if we reached end (2000 characters times 2 is 4000, which is 0xfa0 in hex, \
+								; multiply by two since every character needs 2 bytes)
+		jge end_loop1
+
+		mov byte [eax], ' '			; move space because it is empty
+		mov byte [eax + 1], 0x1f		; 0x1f is white on blue
+
+		add eax, 2				; move to next char
+		jmp start_loop1			; jump to start of loop
+	end_loop1:
+
+	pop eax						; return original value into eax
+
+	ret							; return from function
+
+last_eip: dd 0x0			; this here holds the eip before calling this procedure
+last_esp: dd 0x0			; same thinf but for esp
+text_registers: db "EIP:    ", 0, \
+				   "EAX:    ", 0, "ECX:    ", 0, "EDX:    ", 0, "EBX:    ", 0, \
+				   "ESP:    ", 0, "EBP:    ", 0, "ESI:    ", 0, "EDI:    ", 0, \
+				   "EFLAGS: ", 0, \
+				   "GS:     ", 0, "FS:     ", 0, "ES:     ", 0, "SS:     ", 0, "DS:     ", 0, "CS:     ", 0
+col: db 0
+row: db 0
+text1: db "                                  KERNEL PANIC                                  ", 0
+test_str: db "0xDEADBEEF", 0

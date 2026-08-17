@@ -1,4 +1,4 @@
-CF = -m32 -c -ffreestanding --freestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong -Isrc/clangh/utilities
+CF = -m32 -c -ffreestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong -Isrc/clangh/utilities
 O = compiled/obj
 
 OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/kpanic.o $(O)/utilities.o $(O)/signature.o
@@ -41,7 +41,7 @@ $(O)/keyboard.o: src/clang/keyboard/keyboard.c src/clangh/keyboard/keyboard.h
 	@echo "Building keyboard driver..."
 	@gcc $(CF) src/clang/keyboard/keyboard.c -o compiled/obj/keyboard.o
 
-$(O)/kernel.o: src/clang/kernel.c src/clangh/stdlib/kstdlib.h src/clangh/pong/pong.h
+$(O)/kernel.o: src/clang/kernel.c src/clangh/stdlib/kstdlib.h src/clangh/pong/pong.h 
 	@echo "Building kernel..."
 	@gcc $(CF) src/clang/kernel.c -o compiled/obj/kernel.o
 
