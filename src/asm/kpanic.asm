@@ -17,7 +17,7 @@ kpanic:
 	; disable interrupts
 	cli
 
-	; save EVERYTHING (esp gets the old adress instead of this one
+	; save EVERYTHING (esp gets the old adress instead of this one)
 	push cs
 	push ds
 	push ss
@@ -36,6 +36,7 @@ kpanic:
 	push eax
 
 	push dword [last_eip]					; push this too to do everything in one loop
+	; dont change the redoslijed in which registers are pushed, this is crucial
 
 
 	call fill_screen_blue					; clear the screen
@@ -53,7 +54,7 @@ kpanic:
 		cmp ecx, 16							; check if we printed all registers
 		jge end_loop3
 
-		mov eax, ebx
+		mov eax, ebx						; print the register name
 		call print_str
 
 		start_loop4:
@@ -64,15 +65,15 @@ kpanic:
 
 			jmp start_loop4
 		end_loop4:
-		inc ebx
+		inc ebx								; go past the null terminator
 
-		pop eax
-		call print_hex
+		pop eax								; get the register from stack
+		call print_hex						; print it
 
 		inc byte [row]
 		mov byte [col], 0
 		inc ecx								; dont forget!
-		jmp start_loop3
+		jmp start_loop3						; and especially dont forget this!
 	end_loop3:
 
 
@@ -111,10 +112,45 @@ print_hex:
 	; formula for printing to VGA with col and row is: 0xb8000 + (row * 80 + col) * 2
 	pushad 						; save all registers
 
+	mov ebx, eax
+	; we will first print the "0x" part of hex num to screen
+	mov al, '0'
+	call print_char
+	mov al, 'x'
+	call print_char
+
 	; ======== CONVERT ========
-	; first we need to convert the hex num into a string. we are storing the cha
-	mov eax, test_str
-	call print_str
+	; first we need to convert the hex num into a string. we are storing the char in eax
+	; to convert one nibble to ascii, we need to:
+	; add 0x30 if nibble is less than 10 (0xA)
+	; add 0x37 if nibble is more than or equal to 10 (0xA)
+	; we will move hex num to ebx, bc print_char needs the char in eax
+	; we need to do this in a loop, 8 times total
+	; ecx will have the index
+	mov ecx, 0
+	start_loop5:
+		cmp ecx, 8
+		jge end_loop5
+
+		mov eax, ebx
+		shr eax, 28
+		if3:
+			cmp eax, 0xA
+			jl if3_false
+
+			if3_true:
+				add eax, 0x37
+				jmp endif3
+			if3_false:
+				add eax, 0x30
+		endif3:
+		call print_char
+
+		inc ecx
+		shl ebx, 4
+		jmp start_loop5
+	end_loop5:
+
 	popad						; pop them back
 	ret
 
@@ -186,6 +222,8 @@ fill_screen_blue:
 
 	ret							; return from function
 
+
+; ==================== VARIABLES ====================
 last_eip: dd 0x0			; this here holds the eip before calling this procedure
 last_esp: dd 0x0			; same thinf but for esp
 text_registers: db "EIP:    ", 0, \
