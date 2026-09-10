@@ -1,7 +1,5 @@
 #pragma once
-
-#include <keyboard/keyboard.h>
-#include <stdlib/kstdlib.h>
+#include <stddef.h>
 
 typedef void (*program_t)(int argc, char *argv[]);
 

@@ -90,7 +90,7 @@ protected:
 	end_loop2:
 
 	mov byte [0xb8000], 'S'
-	mov byte [0xb0001], 0x0f
+	mov byte [0xb8001], 0x0f
 
 	
 	; TODO: fix			is it fixed? i dont know and dont care since it works
@@ -116,7 +116,7 @@ protected:
 	mov eax, 0x004b4100		; signature
 	mov ebx, [signature]
 	cmp eax, ebx
-	jne error_incomplete_kernel 
+	jne error_incomplete_kernel
 
 	call kmain			; call C code
 			

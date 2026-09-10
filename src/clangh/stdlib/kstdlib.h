@@ -36,7 +36,7 @@ void kprint(char *s);
 int kdo_nothing();
 void kmem_zero(address8 start, address8 end);
 bool kstrcmp(char *s1, char *s2);			// returns true if strings are equal
-size_t kstrlen(char *s);
+size_t kstrlen(const char *s);
 void kclear_vga_buffer();
 void kfree(void *p);
 void kupdate_cursor(uint16_t pos);

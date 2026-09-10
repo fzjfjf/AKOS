@@ -51,6 +51,12 @@ void kmain()
 
 	print_OK("kmalloc WORKS              \n", true);
 
+	// test for cursor
+	// kmem_zero((address8)VGA_ADDRESS, VGA_ADDRESS + (address8)2000);
+	// *((address8)0xb8001) = 0x0f;
+	// kupdate_cursor(0);
+	// goto stop;
+
 	// ========== SHELL ==========
 	// start shell
 	program_t programs[] = {

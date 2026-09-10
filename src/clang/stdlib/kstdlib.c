@@ -18,8 +18,9 @@ VGA_t vga_args = {
 };
 
 extern void outb(uint16_t port, uint8_t data);
+extern uint16_t inb(uint16_t port);
 
-size_t kstrlen(char *s)
+size_t kstrlen(const char *s)
 {
 	size_t len = 0;
 	while (s[len] != 0) {
@@ -70,6 +71,17 @@ int kdo_nothing()
 
 void kupdate_cursor(uint16_t pos)
 {
+	outb(0x3D4, 0x0A);
+	uint8_t start = inb(0x3D5);
+	outb(0x3D4, 0x0A);
+	outb(0x3D5, start & 0x1F);
+
+	outb(0x3D4, 0x0A);
+outb(0x3D5, 14);
+
+outb(0x3D4, 0x0B);
+outb(0x3D5, 15);
+
 	outb(0x3D4, 14);
 	outb(0x3D5, (pos >> 8) & 0xFF);
 
@@ -79,10 +91,16 @@ void kupdate_cursor(uint16_t pos)
 
 void* kmalloc(size_t size)
 {
-	// TODO: add reusing blocks instaed of only beaing a bump allocator - fixed
+	// TODO: add reusing blocks instead of only being a bump allocator - fixed, kinda. eh, good enough. \
+	   TODO: defragmentation isnt necessary right now
 	address8 p = HEAP_START;
 	while (p < HEAP_END) {
 		if (p[0] == 0) {
+			if (size > HEAP_END - HEAP_START ||
+				p + sizeof(heap_mem_header_t) + size > HEAP_END
+				)
+					return NULL;
+
 			heap_mem_header_t *header = (heap_mem_header_t *)p;
 			header->ptr = p + sizeof(heap_mem_header_t);
 			header->next_ptr = p + size + sizeof(heap_mem_header_t);
@@ -133,7 +151,8 @@ void kprint(char *s)	//NOLINT
 			// clear current line and next line 
 			for (int j = 0; j < 320; j+=2) {
 				vga_args.vga[j] = ' ';
-				vga_args.vga[j + 1] = VGA_BLACK_ON_BLACK;
+				vga_args.vga[j + 1] = VGA_WHITE_ON_BLACK;		// this HAS to be white on black, otherwise cursor cant	\
+																	be seen!
 			}
 
 			i++;
