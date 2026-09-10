@@ -25,11 +25,13 @@ void kmain()
 	load_idt();
 	print_OK("IDT Loaded\n", false);
 
-	// THIS PART HAS TO BE LIKE THIS, DO NOT CHANGE OR QUESTION
-	// explanation: this is to change the first [OK] to green
-	// initializer.asm should NOT BE changed EXCEPT in case of error
-	*(address8)(VGA_ADDRESS + 3) = VGA_LIGHT_GREEN_ON_BLACK;
-	*(address8)(VGA_ADDRESS + 5) = VGA_LIGHT_GREEN_ON_BLACK;
+	{
+		// THIS PART HAS TO BE LIKE THIS, DO NOT CHANGE OR QUESTION
+		// explanation: this is to change the first [OK] to green
+		// initializer.asm should NOT BE changed EXCEPT in case of error
+		*(address8)(VGA_ADDRESS + 3) = VGA_LIGHT_GREEN_ON_BLACK;
+		*(address8)(VGA_ADDRESS + 5) = VGA_LIGHT_GREEN_ON_BLACK;
+	}
 
 	// Initialize heap to zero
 	kprint("[  ] Zeroing heap memory...");
@@ -47,8 +49,8 @@ void kmain()
 	*test = 'A';
 	kfree(test);
 	test = kmalloc(128);
-	if (test == NULL || *test == 'A') goto kmalloc_error;	
-
+	if (test == NULL || *test == 'A') goto kmalloc_error;
+	kfree(test);
 	print_OK("kmalloc WORKS              \n", true);
 
 	// test for cursor
