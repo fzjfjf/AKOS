@@ -31,21 +31,37 @@ typedef struct {
 	bool remove_line_below;
 } VGA_t;
 
+
+// =====================================================================================================================
+// MEMORY
+// =====================================================================================================================
 void* kmalloc(size_t size);
-void kprint(char *s);
-int kdo_nothing();
 void kmem_zero(address8 start, address8 end);
-bool kstrcmp(char *s1, char *s2);			// Note: Returns true if strings are equal
-size_t kstrlen(const char *s);
 void kclear_vga_buffer();
 void kfree(void *p);
-void kupdate_cursor(uint16_t pos);
-void reboot(uint64_t passwd);
+// =====================================================================================================================
+// OUTPUT
+// =====================================================================================================================
 int kprintf(char *format, ...);
 void kputc(char c);
+void kprint(char *s);
+// =====================================================================================================================
+// INTEGER TO STRING CONVERSIONS
+// =====================================================================================================================
 void itoa(int integer, char *string);				// Note: `string` MUST BE AT LEAST 12 bytes, otherwise UB
 void uitoa(unsigned int integer, char *string);		// Note: `string` MUST BE AT LEAST 11 bytes, otherwise UB
 void xtoa(unsigned int integer, char *string);		// Note: `string` MUST BE AT LEAST 11 bytes, otherwise UB
 void litoa(int64_t long_integer, char *string);			// Note: `string` MUST BE AT LEAST 21 bytes, otherwise UB
 void lutoa(uint64_t long_integer, char *string);			// Note: `string` MUST BE AT LEAST 21 bytes, otherwise UB
 void lxtoa(uint64_t long_integer, char *string);			// Note: `string` MUST BE AT LEAST 19 bytes, otherwise UB
+// =====================================================================================================================
+// STRING FUNCTIONS
+// =====================================================================================================================
+bool kstrcmp(char *s1, char *s2);			// Note: Returns true if strings are equal
+size_t kstrlen(const char *s);
+// =====================================================================================================================
+// OTHER
+// =====================================================================================================================
+void kupdate_cursor(uint16_t pos);
+void reboot(uint64_t passwd);
+int kdo_nothing();
