@@ -174,42 +174,29 @@ int kprintf(char *format, ...)
 					break;
 				case 'i':
 
-					int integer = va_arg(args, int);
-
-					if (integer & 0b10000000000000000000000000000000) kputc('-');
-
-					unsigned int num = (unsigned int)integer;			// get unsigned variant
-
-					if (integer < 0) num = 0 - num;						// flip if negative
-
-					bool skipped_leading_zeros = false;
-					for (int i = 1000000000; i > 0; i /= 10) {
-						if (num / i != 0 || skipped_leading_zeros) {
-							skipped_leading_zeros = true;
-							kputc('0' + num / i);
-							num %= i;
-						}
-					}
-
-					if (!skipped_leading_zeros) kputc('0');
-					break;
-				case 'p':
-					unsigned int ptr = (unsigned int)va_arg(args, void *);
-
-					bool skipped_leading_zeros2 = false;
-					for (int i = 1000000000; i > 0; i /= 10) {
-						if (ptr / i != 0 || skipped_leading_zeros2) {
-							skipped_leading_zeros2 = true;
-							kputc('0' + ptr / i);
-							ptr %= i;
-						}
-					}
-
-					if (!skipped_leading_zeros2) kprint("NULL");
+					char* temp_s = kmalloc(12);
+					itoa(va_arg(args, int), temp_s);
+					kprint(temp_s);
+					kfree(temp_s);
 
 					break;
+				case 'u':
 
+					char *temp_su = kmalloc(11);
+					uitoa(va_arg(args, unsigned int), temp_su);
+					kprint(temp_su);
+					kfree(temp_su);
+
+					break;
+				case 'p':				// intentional
 				case 'x':
+
+					char *temp_sx = kmalloc(11);
+					xtoa(va_arg(args, unsigned int), temp_sx);
+					kprint(temp_sx);
+					kfree(temp_sx);
+
+					break;
 				case 'f':
 				default:
 					va_end(args);
@@ -353,4 +340,37 @@ void itoa(int integer, char *string)
 	string[i] = '\0';
 	if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
 
+}
+
+void uitoa(unsigned int uinteger, char *string)
+{
+	bool skipped_zeros = false;
+	int i = 0;
+
+	for (int divisor = 1000000000; divisor > 0; divisor /= 10) {
+		if (uinteger / divisor != 0 || skipped_zeros) {
+			skipped_zeros = true;
+			string[i++] = '0' + uinteger / divisor;
+			uinteger %= divisor;
+		}
+	}
+	string[i] = '\0';
+	if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
+}
+
+void xtoa(unsigned int hex, char *string)
+{
+	int i = 0;
+	string[i++] = '0';
+	string[i++] = 'x';
+
+	for (int j = 28; j >= 0; j -= 4) {
+		int nibble = (hex >> j) & 0x0F;
+
+		if (nibble < 10) {
+			string[i++] = '0' + nibble;
+		} else {
+			string[i++] = nibble - 10 + 'A';
+		}
+	}
 }

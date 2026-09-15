@@ -43,4 +43,6 @@ void kupdate_cursor(uint16_t pos);
 void reboot(uint64_t passwd);
 int kprintf(char *format, ...);
 void kputc(char c);
-void itoa(int integer, char *string);		// Note: `string` MUST BE ATLEAST 12 bytes, otherwise UB
+void itoa(int integer, char *string);				// Note: `string` MUST BE AT LEAST 12 bytes, otherwise UB
+void uitoa(unsigned int integer, char *string);		// Note: `string` MUST BE AT LEAST 11 bytes, otherwise UB
+void xtoa(unsigned int integer, char *string);				// Note: `string` MUST BE AT LEAST 11 bytes, otherwise UB
