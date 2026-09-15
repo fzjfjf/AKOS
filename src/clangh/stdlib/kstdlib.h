@@ -41,3 +41,6 @@ void kclear_vga_buffer();
 void kfree(void *p);
 void kupdate_cursor(uint16_t pos);
 void reboot(uint64_t passwd);
+int kprintf(char *format, ...);
+void kputc(char c);
+char *itoa(int integer);

@@ -59,6 +59,11 @@ void kmain()
 	// kupdate_cursor(0);
 	// goto stop;
 
+	// test kprintf
+	kprintf("Testing kprintf: %c, %b, %s, %i, %i, %i, %p\n", 'A', 1, "test", 100, -100, 0, test);
+	// test itoa
+	kprintf("100: %s\n", itoa(100));
+
 	// ========== SHELL ==========
 	// start shell
 	program_t programs[] = {

@@ -1,5 +1,6 @@
 #include <kstdlib.h>
 #include <keyboard.h>
+#include <stdarg.h>
 
 typedef struct {
 	address8 ptr;
@@ -131,6 +132,101 @@ void kfree(void *p)
 	return;		//NOLINT
 }
 
+int kprintf(char *format, ...)
+{
+	va_list args;
+
+	int count = 0;
+	char *temp_format = format;
+	// get count
+	while (*temp_format) {
+		if (*temp_format == '%') {
+			count++;
+		}
+		temp_format++;
+	}
+
+	va_start(args, format);
+
+	while (*format) {
+		if (*format == '%') {
+			switch (*++format) {
+				case '%':
+					kputc('%');
+					break;
+				case 'c':
+
+					kputc((char)va_arg(args, int));
+
+					break;
+				case 'b':
+
+					int b = va_arg(args, int);
+
+					if (b) kprint("true");
+					else kprint("false");
+
+					break;
+				case 's':
+
+					kprint(va_arg(args, char *));
+
+					break;
+				case 'i':
+
+					int integer = va_arg(args, int);
+
+					if (integer & 0b10000000000000000000000000000000) kputc('-');
+
+					unsigned int num = (unsigned int)integer;			// get unsigned variant
+
+					if (integer < 0) num = 0 - num;						// flip if negative
+
+					bool skipped_leading_zeros = false;
+					for (int i = 1000000000; i > 0; i /= 10) {
+						if (num / i != 0 || skipped_leading_zeros) {
+							skipped_leading_zeros = true;
+							kputc('0' + num / i);
+							num %= i;
+						}
+					}
+
+					if (!skipped_leading_zeros) kputc('0');
+					break;
+
+				case 'p':
+					unsigned int ptr = (int)va_arg(args, void *);
+
+					bool skipped_leading_zeros2 = false;
+					for (int i = 1000000000; i > 0; i /= 10) {
+						if (ptr / i != 0 || skipped_leading_zeros2) {
+							skipped_leading_zeros2 = true;
+							kputc('0' + ptr / i);
+							ptr %= i;
+						}
+					}
+
+					if (!skipped_leading_zeros2) kputc('0');
+
+					break;
+				case 'x':
+				case 'f':
+				default:
+					va_end(args);
+					return -1;
+			}
+		} else {
+			kputc(*format);
+		}
+
+		format++;
+	}
+
+	va_end(args);
+
+	return count;
+}
+
 void kprint(char *s)	//NOLINT
 {
 	int i = 0;	
@@ -151,8 +247,8 @@ void kprint(char *s)	//NOLINT
 			// clear current line and next line 
 			for (int j = 0; j < 320; j+=2) {
 				vga_args.vga[j] = ' ';
-				vga_args.vga[j + 1] = VGA_WHITE_ON_BLACK;		// this HAS to be white on black, otherwise cursor cant	\
-																	be seen!
+				vga_args.vga[j + 1] = vga_args.color;		// this HAS to be white on black, otherwise cursor cant	\
+															   be seen!
 			}
 
 			i++;
@@ -197,4 +293,59 @@ void kclear_vga_buffer()
 	}
 	vga_args.vga = (address8)VGA_ADDRESS;
 	vga_args.line_number = 0;
+}
+
+void kputc(char c)
+{
+	if (c == '\n') {
+		// 10 == line feed ('\n'), need to switch to new line
+		if (vga_args.line_number >= MAX_NUM_LINES) {
+			vga_args.line_number = 0;
+			vga_args.vga = (address8)VGA_ADDRESS;
+		} else {
+			vga_args.line_number++;
+			vga_args.vga = vga_args.line_number * 160 + (address8)VGA_ADDRESS;
+		}
+		// clear current line and next line
+		for (int j = 0; j < 320; j+=2) {
+			vga_args.vga[j] = ' ';
+			vga_args.vga[j + 1] = vga_args.color;		// this HAS to be white on black, otherwise cursor cant	\
+			be seen!
+		}
+
+		return;
+	} else if (c == '\r') {
+		vga_args.vga = (address8)(VGA_ADDRESS + vga_args.line_number * 160);
+	} else if (c == '\b') {
+		vga_args.vga -= 2;
+		return;
+	}
+
+	*vga_args.vga = c;
+	vga_args.vga++;
+	*vga_args.vga = vga_args.color;
+	vga_args.vga++;
+
+
+	kupdate_cursor((((int)vga_args.vga - VGA_ADDRESS) / 2));
+}
+
+char *itoa(int integer)
+{
+	char *s;
+
+	bool skipped_leading_zeros2 = false;
+	int j = 0;
+	for (int i = 1000000000; i > 0; i /= 10) {
+		if (integer / i != 0 || skipped_leading_zeros2) {
+			skipped_leading_zeros2 = true;
+			s[j] = (char)integer / i;
+			integer %= i;
+			j++;
+		}
+	}
+	s[j] = '\0';
+	if (!skipped_leading_zeros2) for (int i = 0; i < 12; i++) s[i] = '0';
+
+	return s;
 }
