@@ -62,7 +62,13 @@ void kmain()
 	// test kprintf
 	kprintf("Testing kprintf: %c, %b, %s, %i, %i, %i, %p\n", 'A', 1, "test", 100, -100, 0, test);
 	// test itoa
-	kprintf("100: %s\n", itoa(100));
+	char *test_itoa = kmalloc(12);
+	itoa(-100, test_itoa);
+	char *test_itoa2 = kmalloc(12);
+	itoa(100, test_itoa2);
+	kprintf("100: %s\n-100: %s\n", test_itoa2, test_itoa);
+	kfree(test_itoa);
+	kfree(test_itoa2);
 
 	// ========== SHELL ==========
 	// start shell

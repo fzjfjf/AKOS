@@ -193,9 +193,8 @@ int kprintf(char *format, ...)
 
 					if (!skipped_leading_zeros) kputc('0');
 					break;
-
 				case 'p':
-					unsigned int ptr = (int)va_arg(args, void *);
+					unsigned int ptr = (unsigned int)va_arg(args, void *);
 
 					bool skipped_leading_zeros2 = false;
 					for (int i = 1000000000; i > 0; i /= 10) {
@@ -206,9 +205,10 @@ int kprintf(char *format, ...)
 						}
 					}
 
-					if (!skipped_leading_zeros2) kputc('0');
+					if (!skipped_leading_zeros2) kprint("NULL");
 
 					break;
+
 				case 'x':
 				case 'f':
 				default:
@@ -330,22 +330,27 @@ void kputc(char c)
 	kupdate_cursor((((int)vga_args.vga - VGA_ADDRESS) / 2));
 }
 
-char *itoa(int integer)
+void itoa(int integer, char *string)
 {
-	char *s;
+	bool skipped_zeros = false;
+	int i = 0;
 
-	bool skipped_leading_zeros2 = false;
-	int j = 0;
-	for (int i = 1000000000; i > 0; i /= 10) {
-		if (integer / i != 0 || skipped_leading_zeros2) {
-			skipped_leading_zeros2 = true;
-			s[j] = (char)integer / i;
-			integer %= i;
-			j++;
+	if (integer & 0b10000000000000000000000000000000) {
+		string[i++] = '-';
+	}
+
+	unsigned int num = (unsigned int)integer;
+	if (integer < 0) num = 0 - num;
+
+
+	for (int divisor = 1000000000; divisor > 0; divisor /= 10) {
+		if (num / divisor != 0 || skipped_zeros) {
+			skipped_zeros = true;
+			string[i++] = '0' + num / divisor;
+			num %= divisor;
 		}
 	}
-	s[j] = '\0';
-	if (!skipped_leading_zeros2) for (int i = 0; i < 12; i++) s[i] = '0';
+	string[i] = '\0';
+	if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
 
-	return s;
 }

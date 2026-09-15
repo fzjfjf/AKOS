@@ -35,7 +35,7 @@ void* kmalloc(size_t size);
 void kprint(char *s);
 int kdo_nothing();
 void kmem_zero(address8 start, address8 end);
-bool kstrcmp(char *s1, char *s2);			// returns true if strings are equal
+bool kstrcmp(char *s1, char *s2);			// Note: Returns true if strings are equal
 size_t kstrlen(const char *s);
 void kclear_vga_buffer();
 void kfree(void *p);
@@ -43,4 +43,4 @@ void kupdate_cursor(uint16_t pos);
 void reboot(uint64_t passwd);
 int kprintf(char *format, ...);
 void kputc(char c);
-char *itoa(int integer);
+void itoa(int integer, char *string);		// Note: `string` MUST BE ATLEAST 12 bytes, otherwise UB
