@@ -45,4 +45,7 @@ int kprintf(char *format, ...);
 void kputc(char c);
 void itoa(int integer, char *string);				// Note: `string` MUST BE AT LEAST 12 bytes, otherwise UB
 void uitoa(unsigned int integer, char *string);		// Note: `string` MUST BE AT LEAST 11 bytes, otherwise UB
-void xtoa(unsigned int integer, char *string);				// Note: `string` MUST BE AT LEAST 11 bytes, otherwise UB
+void xtoa(unsigned int integer, char *string);		// Note: `string` MUST BE AT LEAST 11 bytes, otherwise UB
+void litoa(int64_t long_integer, char *string);			// Note: `string` MUST BE AT LEAST 21 bytes, otherwise UB
+void lutoa(uint64_t long_integer, char *string);			// Note: `string` MUST BE AT LEAST 21 bytes, otherwise UB
+void lxtoa(uint64_t long_integer, char *string);			// Note: `string` MUST BE AT LEAST 19 bytes, otherwise UB

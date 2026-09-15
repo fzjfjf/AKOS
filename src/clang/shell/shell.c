@@ -66,7 +66,7 @@ void shell(program_t programs[], char *names[], size_t count)
 
 	kprint("> ");
 
-	while (1) {
+	while (1) {											// NOLINT - currently not needed to stop
 		c = kgetchar_nb();					// get input
 		if (c != 0 && (index < 126 || c == '\n')) {		// if there is a character and index isnt out of bounds or character is a newline
 			if (c < 0x80 && c >= 0x20) {				// if character is printable

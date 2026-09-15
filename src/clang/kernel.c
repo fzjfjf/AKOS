@@ -6,6 +6,11 @@
 
 extern VGA_t vga_args;
 
+void zemo(int argc, char *argv[])
+{
+	kprint("Zemo, KONSJKI KURAC\n");
+}
+
 void print_OK(char *s, bool r)
 {
 	vga_args.color = VGA_WHITE_ON_BLACK;
@@ -60,27 +65,27 @@ void kmain()
 	// goto stop;
 
 	// test kprintf
-	kprintf("Testing kprintf: %c, %b, %s, %i, %i, %i, %p, %x\n", 'A', 1, "test", 100, -100, 0, test, 0x0f);
-	// test itoa
-	char *test_itoa = kmalloc(12);
-	itoa(-100, test_itoa);
-	char *test_itoa2 = kmalloc(12);
-	itoa(100, test_itoa2);
-	kprintf("100: %s\n-100: %s\n", test_itoa2, test_itoa);
-	kfree(test_itoa);
-	kfree(test_itoa2);
+	// kprintf("Testing kprintf: %c, %b, %s, %i, %i, %i, %p, %x\n", 'A', 1, "test", 100, -100, 0, test, 0x0f);
+	// // test itoa
+	// char *test_itoa = kmalloc(12);
+	// itoa(-100, test_itoa);
+	// char *test_itoa2 = kmalloc(12);
+	// itoa(100, test_itoa2);
+	// kprintf("100: %s\n-100: %s\n", test_itoa2, test_itoa);
+	// kfree(test_itoa);
+	// kfree(test_itoa2);
 
 
 
 	// ========== SHELL ==========
 	// start shell
 	program_t programs[] = {
-		pong, sl
+		pong, sl, zemo
 	};
 	char *program_names[] = {
-		"pong", "sl"
+		"pong", "sl", "zemo"
 	};
-	shell(programs, program_names, 2);
+	shell(programs, program_names, 3);
 
 	// notify that shell ended, if shell for some reason exited
 	kprint("\nSHELL ended\n");

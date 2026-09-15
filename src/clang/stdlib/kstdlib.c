@@ -1,6 +1,8 @@
 #include <kstdlib.h>
 #include <keyboard.h>
 #include <stdarg.h>
+#include <stdint.h>
+#include <stddef.h>
 
 typedef struct {
 	address8 ptr;
@@ -78,10 +80,10 @@ void kupdate_cursor(uint16_t pos)
 	outb(0x3D5, start & 0x1F);
 
 	outb(0x3D4, 0x0A);
-outb(0x3D5, 14);
+	outb(0x3D5, 14);
 
-outb(0x3D4, 0x0B);
-outb(0x3D5, 15);
+	outb(0x3D4, 0x0B);
+	outb(0x3D5, 15);
 
 	outb(0x3D4, 14);
 	outb(0x3D5, (pos >> 8) & 0xFF);
@@ -174,10 +176,10 @@ int kprintf(char *format, ...)
 					break;
 				case 'i':
 
-					char* temp_s = kmalloc(12);
-					itoa(va_arg(args, int), temp_s);
-					kprint(temp_s);
-					kfree(temp_s);
+					char* temp_si = kmalloc(12);
+					itoa(va_arg(args, int), temp_si);
+					kprint(temp_si);
+					kfree(temp_si);
 
 					break;
 				case 'u':
@@ -197,6 +199,24 @@ int kprintf(char *format, ...)
 					kfree(temp_sx);
 
 					break;
+				case 'l':
+					switch (*++format) {
+						case 'u':				// NOLINT - placeholder temporarily
+							char *temp_slu = kmalloc(21);
+							lutoa(va_arg(args, uint64_t), temp_slu);
+							kprint(temp_slu);
+							kfree(temp_slu);
+
+							break;
+						case 'i':
+							char *temp_sli = kmalloc(21);
+							litoa(va_arg(args, int64_t), temp_sli);
+							kprint(temp_sli);
+							kfree(temp_sli);
+						case 'x':
+						default:
+							break;
+					}
 				case 'f':
 				default:
 					va_end(args);
@@ -365,7 +385,7 @@ void xtoa(unsigned int hex, char *string)
 	string[i++] = 'x';
 
 	for (int j = 28; j >= 0; j -= 4) {
-		int nibble = (hex >> j) & 0x0F;
+		unsigned int nibble = (hex >> j) & 0x0F;
 
 		if (nibble < 10) {
 			string[i++] = '0' + nibble;
@@ -373,4 +393,65 @@ void xtoa(unsigned int hex, char *string)
 			string[i++] = nibble - 10 + 'A';
 		}
 	}
+
+	string[i] = '\0';
+}
+
+void litoa(int64_t integer, char *string)
+{
+	bool skipped_zeros = false;
+	int i = 0;
+
+	if (integer & 0b1000000000000000000000000000000000000000000000000000000000000000) {
+		string[i++] = '-';
+	}
+
+	uint64_t num = (uint64_t)integer;
+	if (integer < 0) num = 0 - num;
+
+
+	for (uint64_t divisor = 10000000000000000000ULL; divisor > 0; divisor /= 10) {
+		if (num / divisor != 0 || skipped_zeros) {
+			skipped_zeros = true;
+			string[i++] = '0' + num / divisor;
+			num %= divisor;
+		}
+	}
+	string[i] = '\0';
+	if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
+}
+
+void lutoa(uint64_t uinteger, char *string)
+{
+	bool skipped_zeros = false;
+	int i = 0;
+
+	for (uint64_t divisor = 10000000000000000000ULL; divisor > 0; divisor /= 10) {
+		if (uinteger / divisor != 0 || skipped_zeros) {
+			skipped_zeros = true;
+			string[i++] = '0' + uinteger / divisor;
+			uinteger %= divisor;
+		}
+	}
+	string[i] = '\0';
+	if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
+}
+
+void lxtoa(uint64_t hex, char *string)
+{
+	int i = 0;
+	string[i++] = '0';
+	string[i++] = 'x';
+
+	for (int j = 60; j >= 0; j -= 4) {
+		unsigned int nibble = (hex >> j) & 0x0F;
+
+		if (nibble < 10) {
+			string[i++] = '0' + nibble;
+		} else {
+			string[i++] = nibble - 10 + 'A';
+		}
+	}
+
+	string[i] = '\0';
 }
