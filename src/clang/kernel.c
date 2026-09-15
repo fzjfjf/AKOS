@@ -6,11 +6,6 @@
 
 extern VGA_t vga_args;
 
-void zemo(int argc, char *argv[])
-{
-	kprint("Zemo, KONSJKI KURAC\n");
-}
-
 void print_OK(char *s, bool r)
 {
 	vga_args.color = VGA_WHITE_ON_BLACK;

@@ -49,3 +49,9 @@ void sl(int argc, char **argv)
 		__asm__ volatile ("hlt");
 	}
 }
+
+
+void zemo(int argc, char *argv[])
+{
+	kprint("Zemo, KONJSKI KURAC\n");
+}

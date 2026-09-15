@@ -213,9 +213,18 @@ int kprintf(char *format, ...)
 							litoa(va_arg(args, int64_t), temp_sli);
 							kprint(temp_sli);
 							kfree(temp_sli);
-						case 'x':
-						default:
+
 							break;
+						case 'x':
+							char *temp_slx = kmalloc(21);
+							litoa(va_arg(args, int64_t), temp_slx);
+							kprint(temp_slx);
+							kfree(temp_slx);
+
+							break;
+						default:
+							va_end(args);
+							return -1;
 					}
 				case 'f':
 				default:
@@ -399,42 +408,42 @@ void xtoa(unsigned int hex, char *string)
 
 void litoa(int64_t integer, char *string)
 {
-	bool skipped_zeros = false;
-	int i = 0;
-
-	if (integer & 0b1000000000000000000000000000000000000000000000000000000000000000) {
-		string[i++] = '-';
-	}
-
-	uint64_t num = (uint64_t)integer;
-	if (integer < 0) num = 0 - num;
-
-
-	for (uint64_t divisor = 10000000000000000000ULL; divisor > 0; divisor /= 10) {
-		if (num / divisor != 0 || skipped_zeros) {
-			skipped_zeros = true;
-			string[i++] = '0' + num / divisor;
-			num %= divisor;
-		}
-	}
-	string[i] = '\0';
-	if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
+	// bool skipped_zeros = false;
+	// int i = 0;
+	//
+	// if (integer & 0b1000000000000000000000000000000000000000000000000000000000000000) {
+	// 	string[i++] = '-';
+	// }
+	//
+	// uint64_t num = (uint64_t)integer;
+	// if (integer < 0) num = 0 - num;
+	//
+	//
+	// for (uint64_t divisor = 10000000000000000000ULL; divisor > 0; divisor /= 10) {
+	// 	if (num / divisor != 0 || skipped_zeros) {
+	// 		skipped_zeros = true;
+	// 		string[i++] = '0' + num / divisor;
+	// 		num %= divisor;
+	// 	}
+	// }
+	// string[i] = '\0';
+	// if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
 }
 
 void lutoa(uint64_t uinteger, char *string)
 {
-	bool skipped_zeros = false;
-	int i = 0;
-
-	for (uint64_t divisor = 10000000000000000000ULL; divisor > 0; divisor /= 10) {
-		if (uinteger / divisor != 0 || skipped_zeros) {
-			skipped_zeros = true;
-			string[i++] = '0' + uinteger / divisor;
-			uinteger %= divisor;
-		}
-	}
-	string[i] = '\0';
-	if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
+	// bool skipped_zeros = false;
+	// int i = 0;
+	//
+	// for (uint64_t divisor = 10000000000000000000ULL; divisor > 0; divisor /= 10) {
+	// 	if (uinteger / divisor != 0 || skipped_zeros) {
+	// 		skipped_zeros = true;
+	// 		string[i++] = '0' + uinteger / divisor;
+	// 		uinteger %= divisor;
+	// 	}
+	// }
+	// string[i] = '\0';
+	// if (!skipped_zeros) {string[0] = '0'; string[1] = '\0';}
 }
 
 void lxtoa(uint64_t hex, char *string)
