@@ -2,6 +2,7 @@
 #include <pong.h>
 #include <kstdlib.h>
 #include <keyboard.h>
+#include <vga_colors.h>
 
 // ======== DEFINES AND ENUMS ========
 #define MAX_Y 24
@@ -313,7 +314,6 @@ void pong(int argc, char *argv[])
 					while (1) {
 						__asm__ volatile ("hlt");
 					}
-					break;
 			}
 			if (score.right == 10) {
 				kclear_vga_buffer();

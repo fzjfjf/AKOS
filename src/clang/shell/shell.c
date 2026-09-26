@@ -2,7 +2,6 @@
 #include <keyboard.h>
 #include <kstdlib.h>
 
-
 extern void kpanic();
 
 void dispatcher(char *command, int index, char *help_message[],				// for built in commands

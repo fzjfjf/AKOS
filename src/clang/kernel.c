@@ -3,6 +3,7 @@
 #include <pong/pong.h>
 #include <utilities/utilities.h>
 #include <idt.h>
+#include <vga_colors.h>
 
 extern VGA_t vga_args;
 

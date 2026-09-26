@@ -2,7 +2,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef INCLUDE_COLORS_AUTO
 #include <vga_colors.h>
+#endif
 
 #define VGA_ADDRESS 0xb8000
 #define MAX_NUM_LINES 24
@@ -25,9 +28,9 @@ typedef uint64_t qword;
 // structs with global variables
 typedef struct {
 	volatile unsigned char* vga;
-	int line_number;
-	int column_number;
-	int color;
+	uint8_t line_number;
+	uint8_t column_number;
+	uint8_t color;
 	bool remove_line_below;
 } VGA_t;
 

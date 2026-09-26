@@ -1,8 +1,8 @@
 #include <kstdlib.h>
-#include <keyboard.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <vga_colors.h>
 
 typedef struct {
 	address8 ptr;
@@ -16,7 +16,7 @@ VGA_t vga_args = {
 	.vga = (address8)(VGA_ADDRESS + 160),	// adjust since initializer prints some text
 	.line_number = 1,
 	.remove_line_below = false,
-	.column_number = -1,					// -1 since kstdlib.c doesnt use this
+	.column_number = 255,					// 255 since kstdlib.c doesnt use this, and it is uint8_t
 	.color = VGA_WHITE_ON_BLACK,
 };
 
