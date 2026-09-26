@@ -1,8 +1,8 @@
+#define INCLUDE_COLORS_AUTO
 #include <kstdlib.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <vga_colors.h>
 
 typedef struct {
 	address8 ptr;

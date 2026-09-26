@@ -1,8 +1,8 @@
+#define INCLUDE_COLORS_AUTO
 // ======== INCLUDES ========
 #include <pong.h>
 #include <kstdlib.h>
 #include <keyboard.h>
-#include <vga_colors.h>
 
 // ======== DEFINES AND ENUMS ========
 #define MAX_Y 24

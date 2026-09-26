@@ -1,9 +1,9 @@
+#define INCLUDE_COLORS_AUTO
 #include <kstdlib.h>
 #include <shell/shell.h>
 #include <pong/pong.h>
 #include <utilities/utilities.h>
 #include <idt.h>
-#include <vga_colors.h>
 
 extern VGA_t vga_args;
 
@@ -22,7 +22,7 @@ void print_OK(char *s, bool r)
 void kmain()
 {
 	// ========== INITIALIZATIONS ==========
-	print_OK("Switched to Kernel\n", false);
+	print_OK("Subscribed to Kernel\n", false);
 	load_idt();
 	print_OK("IDT Loaded\n", false);
 
