@@ -3,6 +3,7 @@
 #include <pong.h>
 #include <kstdlib.h>
 #include <keyboard.h>
+#include <idt.h>
 
 // ======== DEFINES AND ENUMS ========
 #define MAX_Y 24
@@ -87,6 +88,9 @@ void reset_to_default()
 
 	left_paddle.y = 9;
 	right_paddle.y = 9;
+
+	score.left = 0;
+	score.right = 0;
 }
 
 void draw_char(int x, int y, uchar c, int color)
@@ -218,7 +222,9 @@ void pong(int argc, char *argv[])
 	// put score on corners, 0 at start
 	draw_char(0, 0, '0', VGA_WHITE_ON_BLACK);
 	draw_char(79, 0, '0', VGA_WHITE_ON_BLACK);
-	int tick = 0;
+
+	uint64_t tick = millis();
+	int delay = 250;
 	int hit_pos = 0;
 
 	while (1) {		// NOLINT
@@ -238,9 +244,8 @@ void pong(int argc, char *argv[])
 			return;
 		}
 
-		if (tick == 500000) {
+		if (tick + delay < millis()) {
 			move_ball();
-			tick = 0;
 
 			if (ai) {
 				while (ball.y != left_paddle.y) {
@@ -321,6 +326,7 @@ void pong(int argc, char *argv[])
 				for (int i = 0; i < 10000000; i++) {
 					kdo_nothing();
 				}
+				delay = 250;
 				return;
 			} else if (score.left == 10) {
 				kclear_vga_buffer();
@@ -328,10 +334,12 @@ void pong(int argc, char *argv[])
 				for (int i = 0; i < 10000000; i++) {
 					kdo_nothing();
 				}
+				delay = 250;
 				return;
 			}
-		}
 
-		tick++;
+			tick = millis();
+			if (delay > 100) delay--;
+		}
 	}
 }

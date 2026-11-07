@@ -1,9 +1,13 @@
 CF = -O3 -m32 -c -ffreestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong -Isrc/clangh/utilities
 O = compiled/obj
 
-OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/kpanic.o $(O)/utilities.o $(O)/signature.o
+OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/kpanic.o $(O)/utilities.o $(O)/signature.o $(O)/calc.o
 
 all: disk.img
+
+compiled/obj/calc.o: src/clang/utilities/calc.c
+	@echo "Building calculator..."
+	@gcc $(CF) src/clang/utilities/calc.c -o compiled/obj/calc.o
 
 compiled/obj/utilities.o: src/clang/utilities/utilities.c
 	@echo "Building utilities..."

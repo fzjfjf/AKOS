@@ -23,6 +23,11 @@ VGA_t vga_args = {
 extern void outb(uint16_t port, uint8_t data);
 extern uint16_t inb(uint16_t port);
 
+int min(int a, int b)
+{
+	return a < b ? a : b;
+}
+
 size_t kstrlen(const char *s)
 {
 	size_t len = 0;
@@ -57,6 +62,18 @@ bool kstrcmp(char *s1, char *s2)
 		}
 	}
 	return true;
+}
+
+bool kstrcmp_ws(char *s1, char *s2)
+{
+	while (*s1 != ' ' && *s1 != '\0' && *s2 != '\0') {
+		if (*s1 != *s2) return false;
+
+		s1++;
+		s2++;
+	}
+
+	return (*s1 == ' ' || *s1 == '\0') && *s2 == '\0';
 }
 
 void kmem_zero(address8 start, address8 end)
@@ -132,6 +149,28 @@ void kfree(void *p)
 	heap_mem_header_t *header = (heap_mem_header_t *)p - 1;
 	header->is_free = true;
 	return;		//NOLINT
+}
+
+void* krealloc(void *src, size_t size)
+{
+	void *new = kmalloc(size);
+	kmemcpy(new, src, min(size, ((heap_mem_header_t*)(src - sizeof(heap_mem_header_t)))->size));
+	kfree(src);
+	return new;
+}
+
+size_t kmemcpy(address8 dest, address8 src, size_t count)
+{
+	int len = 0;
+
+	while (count--) {
+		*dest = *src;
+		dest++;
+		src++;
+		len++;
+	}
+
+	return len;
 }
 
 int kprintf(char *format, ...)

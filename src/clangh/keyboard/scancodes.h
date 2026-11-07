@@ -38,7 +38,16 @@
 #define KEY_CAPS   0x3A
 #define KEY_LSHIFT 0x2A
 #define KEY_RSHIFT 0x36
-#define KEY_LCTRL  0x1D
-#define KEY_LALT   0x38
+#define KEY_CTRL  0x1D
+#define KEY_ALT   0x38
 #define KEY_DEL    0x53
 #define KEY_INS    0x52
+
+#define KEY_LSHIFT_DOWN 0xAA
+#define KEY_RSHIFT_DOWN 0xB6
+#define KEY_CTRL_DOWN 0x9D
+#define KEY_ALT_DOWN 0xB8
+
+#define KEY_EXTENDED 0xE0
+
+

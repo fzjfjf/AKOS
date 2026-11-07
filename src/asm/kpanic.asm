@@ -76,7 +76,34 @@ kpanic:
 		jmp start_loop3						; and especially dont forget this!
 	end_loop3:
 
+	; ===== PRINT STACK =====
+	mov byte [row], 1
+    mov byte [col], 42
 
+    mov eax, stack_text
+    call print_str
+
+    mov byte [row], 2
+    mov byte [col], 42
+
+    mov esi, [last_esp]
+    mov ecx, 0
+
+stack_loop:
+    cmp ecx, 16
+    jge stack_loop_end
+
+    mov eax, [esi]
+    call print_hex
+
+    add esi, 4
+    inc ecx
+
+    inc byte [row]
+    mov byte [col], 42
+    jmp stack_loop
+
+stack_loop_end:
 
 
 	halt_loop:
@@ -235,3 +262,4 @@ col: db 0
 row: db 0
 text1: db "                                  KERNEL PANIC                                  ", 0
 test_str: db "0xDEADBEEF", 0
+stack_text: db "STACK:", 0

@@ -1,9 +1,12 @@
 #define INCLUDE_COLORS_AUTO
 #include <kstdlib.h>
-#include <shell/shell.h>
-#include <pong/pong.h>
+#include <shell.h>
+#include <pong.h>
 #include <utilities/utilities.h>
 #include <idt.h>
+#include <calc.h>
+
+#include "keyboard.h"
 
 extern VGA_t vga_args;
 
@@ -71,20 +74,19 @@ void kmain()
 	// kfree(test_itoa);
 	// kfree(test_itoa2);
 
-
-
 	// ========== SHELL ==========
 	// start shell
 	program_t programs[] = {
-		pong, sl, zemo
+		pong, sl, zemo, calc
 	};
 	char *program_names[] = {
-		"pong", "sl", "zemo"
+		"pong", "sl", "zemo", "calc"
 	};
-	shell(programs, program_names, 3);
+	shell(programs, program_names, 4);
 
 	// notify that shell ended, if shell for some reason exited
 	kprint("\nSHELL ended\n");
+
 
 	// print that there is nothing more to execute, and stop
 	kclear_vga_buffer();

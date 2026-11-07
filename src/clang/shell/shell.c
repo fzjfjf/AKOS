@@ -33,13 +33,41 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 	} else if (kstrcmp("debugcorruptstack", command) == true) {
 		for (int i = 0; i < 100; i++) __asm__ volatile("pop %eax");
 		for (int i = 0; i < 100; i++) __asm__ volatile("push $0xffffffff");
+	} else if (kstrcmp("debugcorruptstackandpanic", command) == true) {
+		for (int i = 0; i < 100; i++) __asm__ volatile("pop %eax");
+		for (int i = 0; i < 100; i++) __asm__ volatile("push $0xffffffff");
+		kpanic();
 	} else if (index == 1) {
 
 	} else {
 		// first go through the program function pointer array
 		for (int i = 0; i < count; i++) {
-			if (kstrcmp(command, names[i]) == true) {
-				programs[i](0, &command);
+			if (kstrcmp_ws(command, names[i]) == true) {
+				char **argv = kmalloc(sizeof(char*));
+				int argc = 0;
+
+				char *start = command;
+
+				while (*command) {
+					if (*command == ' ') {
+						argv = krealloc(argv, (argc + 1) * sizeof(char*));
+
+						argv[argc] = kmalloc(command - start + 1);
+
+						kmemcpy(argv[argc], start, command - start);
+						argv[argc][command - start] = '\0';
+						argc++;
+						start = command + 1;
+						command++;
+					} else command++;
+				}
+
+				argv[argc] = NULL;
+
+				programs[i](argc, argv);
+
+				for (int i = 0; i < argc; i++) kfree(argv[i]);
+				kfree(argv);
 				return;
 			}
 		}
@@ -75,7 +103,8 @@ void shell(program_t programs[], char *names[], size_t count)
 				command[index++] = c;					// add the character to the command string
 			} else if (c == '\n') {						// if character is a newline
 				kprint("\n");							// put a newline
-				command[index++] = '\0';				// put a null terminator on the end of command
+				command[index++] = ' ';				// put a null terminator on the end of command
+				command[index++] = '\0';
 
 				dispatcher(command, index, help_message, programs, names, count);
 
@@ -90,5 +119,7 @@ void shell(program_t programs[], char *names[], size_t count)
 																	// in the vga buffer so we need to overwrite it and move the cursor back
 			}
 		}
+
+		__asm__ volatile("hlt");
 	}
 }
