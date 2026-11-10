@@ -104,6 +104,6 @@ void kmain()
 	// end
 	stop:
 	while (1) {			// NOLINT
-			__asm__ volatile("hlt");	
+			__asm__ volatile("hlt");
 	}
 }

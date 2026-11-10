@@ -41,6 +41,11 @@ start:
 	int 0x13			; call the interrupt
 	jc error_reading		; if carry is set, stop now
 
+	in al, 0x92				; open a20
+    or al, 2
+    and al, 0xFE
+    out 0x92, al
+
 	jmp 0x8000:0x0000		; jump to the initializer, goodbye cruel 8086 world!
 	
 	; =============== ERROR HANDLING ===============

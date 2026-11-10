@@ -68,7 +68,6 @@ bool kstrcmp_ws(char *s1, char *s2)
 {
 	while (*s1 != ' ' && *s1 != '\0' && *s2 != '\0') {
 		if (*s1 != *s2) return false;
-
 		s1++;
 		s2++;
 	}
@@ -502,4 +501,22 @@ void lxtoa(uint64_t hex, char *string)
 	}
 
 	string[i] = '\0';
+}
+
+int atoi(const char *s)
+{
+	int sign = 1;
+	int result = 0;
+
+	while (*s == ' ' || *s == '\t') s++;      // preskoči razmake
+
+	if (*s == '-') { sign = -1; s++; }
+	else if (*s == '+') { s++; }
+
+	while (*s >= '0' && *s <= '9') {
+		result = result * 10 + (*s - '0');
+		s++;
+	}
+
+	return sign * result;
 }

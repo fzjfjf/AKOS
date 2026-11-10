@@ -1,7 +1,7 @@
 [bits 16]
 global protected
 start:
-	;sti 					; enable interrupts
+	sti 					; enable interrupts
 
 	mov ax, 0x0				; set up the fricking segments
 	mov ds, ax
@@ -17,14 +17,30 @@ start:
 	;	inc bx				; increment the pointer
 	;	jmp start_loop1			; jump back to start
 	;end_loop1:
-	
+
+mov ax, 0xB800
+mov es, ax
+
+mov ax, 0x0F33     ; AH = atribut, AL = znak '3'
+mov word [es:0], ax
+
 	; all code from here to line 72 MUST NOT BE TOUCHED! 
 	; ================ SWITCH TO PROTECTED MODE =================
 	CODE_SEG equ code_descriptor - gdt_start
 	DATA_SEG equ data_descriptor - gdt_start
 
-	cli
-	lgdt [dword gdt_descriptor]	
+    cli
+    mov word  [0x600], gdt_end - gdt_start - 1
+    mov dword [0x602], gdt_start        ; apsolutna adresa iz linkera
+    o32 lgdt [0x600]
+	;
+	mov ax, 0xB800
+    mov es, ax
+
+    mov ax, 0x0F34     ; AH = atribut, AL = znak '4'
+    mov word [es:0], ax
+    ;
+
 	mov eax, cr0
 	or eax, 0x1
 	mov cr0, eax				; 32-bit mode switch here!
@@ -62,11 +78,18 @@ start:
 extern kmain
 extern signature
 protected:
+
+
+
 	mov eax, DATA_SEG
 	mov ds, ax
 	mov es, ax	
 	mov ss, ax
-	
+
+		;
+    	mov word [0xb8000], 0x0f36
+        ;
+
 	mov esp, 0x90000
 	mov ebp, esp
 	
@@ -85,7 +108,7 @@ protected:
 		mov byte [ebx+1], 0x0f
 	
 		add ebx, 2
-		jmp start_loop2	
+		jmp start_loop2
 
 	end_loop2:
 

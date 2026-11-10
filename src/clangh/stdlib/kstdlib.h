@@ -60,6 +60,10 @@ void litoa(int64_t long_integer, char *string);				// Note: `string` MUST BE AT 
 void lutoa(uint64_t long_integer, char *string);			// Note: `string` MUST BE AT LEAST 21 bytes, otherwise UB
 void lxtoa(uint64_t long_integer, char *string);			// Note: `string` MUST BE AT LEAST 19 bytes, otherwise UB
 // =====================================================================================================================
+// STRING TO INTEGER CONVERSIONS
+// =====================================================================================================================
+int atoi(const char *s);
+// =====================================================================================================================
 // STRING FUNCTIONS
 // =====================================================================================================================
 bool kstrcmp(char *s1, char *s2);			// Note: Returns true if strings are equal

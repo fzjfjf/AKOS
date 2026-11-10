@@ -2,14 +2,61 @@
   {
     "arguments": [
       "/usr/bin/gcc",
+      "-O3",
       "-m32",
       "-c",
       "-ffreestanding",
-      "--freestanding",
       "-fno-pic",
       "-Isrc/clangh",
       "-Isrc/clangh/stdlib",
       "-Isrc/clangh/keyboard",
+      "-Isrc/clangh/shell",
+      "-Isrc/clangh/pong",
+      "-Isrc/clangh/utilities",
+      "-o",
+      "compiled/obj/kernel.o",
+      "src/clang/kernel.c"
+    ],
+    "directory": "/home/abdurrahman/kodiranje/os",
+    "file": "/home/abdurrahman/kodiranje/os/src/clang/kernel.c",
+    "output": "/home/abdurrahman/kodiranje/os/compiled/obj/kernel.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O3",
+      "-m32",
+      "-c",
+      "-ffreestanding",
+      "-fno-pic",
+      "-Isrc/clangh",
+      "-Isrc/clangh/stdlib",
+      "-Isrc/clangh/keyboard",
+      "-Isrc/clangh/shell",
+      "-Isrc/clangh/pong",
+      "-Isrc/clangh/utilities",
+      "-o",
+      "compiled/obj/kstdlib.o",
+      "src/clang/stdlib/kstdlib.c"
+    ],
+    "directory": "/home/abdurrahman/kodiranje/os",
+    "file": "/home/abdurrahman/kodiranje/os/src/clang/stdlib/kstdlib.c",
+    "output": "/home/abdurrahman/kodiranje/os/compiled/obj/kstdlib.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O3",
+      "-m32",
+      "-c",
+      "-ffreestanding",
+      "-fno-pic",
+      "-Isrc/clangh",
+      "-Isrc/clangh/stdlib",
+      "-Isrc/clangh/keyboard",
+      "-Isrc/clangh/shell",
+      "-Isrc/clangh/pong",
+      "-Isrc/clangh/utilities",
       "-o",
       "compiled/obj/keyboard.o",
       "src/clang/keyboard/keyboard.c"
@@ -17,5 +64,115 @@
     "directory": "/home/abdurrahman/kodiranje/os",
     "file": "/home/abdurrahman/kodiranje/os/src/clang/keyboard/keyboard.c",
     "output": "/home/abdurrahman/kodiranje/os/compiled/obj/keyboard.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O3",
+      "-m32",
+      "-c",
+      "-ffreestanding",
+      "-fno-pic",
+      "-Isrc/clangh",
+      "-Isrc/clangh/stdlib",
+      "-Isrc/clangh/keyboard",
+      "-Isrc/clangh/shell",
+      "-Isrc/clangh/pong",
+      "-Isrc/clangh/utilities",
+      "-o",
+      "compiled/obj/shell.o",
+      "src/clang/shell/shell.c"
+    ],
+    "directory": "/home/abdurrahman/kodiranje/os",
+    "file": "/home/abdurrahman/kodiranje/os/src/clang/shell/shell.c",
+    "output": "/home/abdurrahman/kodiranje/os/compiled/obj/shell.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O3",
+      "-m32",
+      "-c",
+      "-ffreestanding",
+      "-fno-pic",
+      "-Isrc/clangh",
+      "-Isrc/clangh/stdlib",
+      "-Isrc/clangh/keyboard",
+      "-Isrc/clangh/shell",
+      "-Isrc/clangh/pong",
+      "-Isrc/clangh/utilities",
+      "-o",
+      "compiled/obj/pong.o",
+      "src/clang/pong/pong.c"
+    ],
+    "directory": "/home/abdurrahman/kodiranje/os",
+    "file": "/home/abdurrahman/kodiranje/os/src/clang/pong/pong.c",
+    "output": "/home/abdurrahman/kodiranje/os/compiled/obj/pong.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O3",
+      "-m32",
+      "-c",
+      "-ffreestanding",
+      "-fno-pic",
+      "-Isrc/clangh",
+      "-Isrc/clangh/stdlib",
+      "-Isrc/clangh/keyboard",
+      "-Isrc/clangh/shell",
+      "-Isrc/clangh/pong",
+      "-Isrc/clangh/utilities",
+      "-o",
+      "compiled/obj/idtc.o",
+      "src/clang/idt.c"
+    ],
+    "directory": "/home/abdurrahman/kodiranje/os",
+    "file": "/home/abdurrahman/kodiranje/os/src/clang/idt.c",
+    "output": "/home/abdurrahman/kodiranje/os/compiled/obj/idtc.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O3",
+      "-m32",
+      "-c",
+      "-ffreestanding",
+      "-fno-pic",
+      "-Isrc/clangh",
+      "-Isrc/clangh/stdlib",
+      "-Isrc/clangh/keyboard",
+      "-Isrc/clangh/shell",
+      "-Isrc/clangh/pong",
+      "-Isrc/clangh/utilities",
+      "-o",
+      "compiled/obj/utilities.o",
+      "src/clang/utilities/utilities.c"
+    ],
+    "directory": "/home/abdurrahman/kodiranje/os",
+    "file": "/home/abdurrahman/kodiranje/os/src/clang/utilities/utilities.c",
+    "output": "/home/abdurrahman/kodiranje/os/compiled/obj/utilities.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O3",
+      "-m32",
+      "-c",
+      "-ffreestanding",
+      "-fno-pic",
+      "-Isrc/clangh",
+      "-Isrc/clangh/stdlib",
+      "-Isrc/clangh/keyboard",
+      "-Isrc/clangh/shell",
+      "-Isrc/clangh/pong",
+      "-Isrc/clangh/utilities",
+      "-o",
+      "compiled/obj/calc.o",
+      "src/clang/utilities/calc.c"
+    ],
+    "directory": "/home/abdurrahman/kodiranje/os",
+    "file": "/home/abdurrahman/kodiranje/os/src/clang/utilities/calc.c",
+    "output": "/home/abdurrahman/kodiranje/os/compiled/obj/calc.o"
   }
 ]

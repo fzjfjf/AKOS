@@ -208,11 +208,6 @@ void pong(int argc, char *argv[])
 
 	bool ai = false;
 
-	kprint("AI or 2-player mode?\n> ");	// ask for mode
-	char ans[128] = "";
-	kinput_b(ans);
-	if (kstrcmp(ans, "ai\n")) ai = true;
-
 	kclear_vga_buffer();		// clear screen again
 
 	// draw paddles

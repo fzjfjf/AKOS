@@ -74,6 +74,10 @@ run: disk.img
 	@echo "Running image in QEMU..."
 	@qemu-system-i386 -m 4096 -drive format=raw,file=disk.img	
 
+debug: disk.img
+	@echo "Running image in QEMU (SLOWED)..."
+	@qemu-system-i386 -m 4096 -drive format=raw,file=disk.img -icount shift=10
+
 clean:
 	@echo "Cleaning compiled/"
 	@rm -rf compiled/bin/*

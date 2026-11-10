@@ -82,10 +82,16 @@ unsigned char decode_scancode(uint8_t scancode)
     if (scancode == KEY_CTRL) {
         keyb_state.ctrl = true;
         return '\0';
+    } if (scancode == KEY_CTRL_DOWN) {
+        keyb_state.ctrl = false;
+        return '\0';
     }
 
     if (scancode == KEY_ALT) {
         keyb_state.alt = true;
+        return '\0';
+    } if (scancode == KEY_ALT_DOWN) {
+        keyb_state.alt = false;
         return '\0';
     }
 

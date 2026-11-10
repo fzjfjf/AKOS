@@ -9,12 +9,14 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 {
 	// TODO: add the programs[] support
 
-	if (kstrcmp("cls", command) == true) {
+	kprintf("COMMAND: %sEND\n", command);
+
+	if (kstrcmp_ws(command, "cls") == true) {
 		kclear_vga_buffer();
 		kprint("\n");
-	} else if (kstrcmp("uname", command) == true) {
+	} else if (kstrcmp_ws(command, "uname") == true) {
 		kprint("AKOS(C) Kernel v0.1-4\n");
-	} else if (kstrcmp("help", command) == true) {
+	} else if (kstrcmp_ws(command, "help") == true) {
 		for (int i = 0; i < 4; i++) {
 			kprint(help_message[i]);
 		}
@@ -24,16 +26,16 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 			kprint("\n");
 		}
 
-	} else if (kstrcmp("reboot", command) == true) {
+	} else if (kstrcmp_ws(command, "reboot") == true) {
 		reboot(0x83da89ff341ace34ULL);
-	} else if (kstrcmp("debugpanic", command) == true) {
+	} else if (kstrcmp_ws(command, "debugpanic") == true) {
 		kpanic();
-	} else if (kstrcmp("debugtestgpf", command) == true) {
+	} else if (kstrcmp_ws(command, "debugtestgpf") == true) {
 		__asm__ volatile("int $13");
-	} else if (kstrcmp("debugcorruptstack", command) == true) {
+	} else if (kstrcmp_ws(command, "debugcorruptstack") == true) {
 		for (int i = 0; i < 100; i++) __asm__ volatile("pop %eax");
 		for (int i = 0; i < 100; i++) __asm__ volatile("push $0xffffffff");
-	} else if (kstrcmp("debugcorruptstackandpanic", command) == true) {
+	} else if (kstrcmp_ws(command, "debugcorruptstackandpanic") == true) {
 		for (int i = 0; i < 100; i++) __asm__ volatile("pop %eax");
 		for (int i = 0; i < 100; i++) __asm__ volatile("push $0xffffffff");
 		kpanic();
