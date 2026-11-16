@@ -1,7 +1,7 @@
-CF = -O3 -m32 -c -ffreestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong -Isrc/clangh/utilities
+CF = -Wall -Werror -O3 -m32 -c -ffreestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong -Isrc/clangh/utilities
 O = compiled/obj
 
-OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/kpanic.o $(O)/utilities.o $(O)/signature.o $(O)/calc.o
+OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/kpanic.o $(O)/utilities.o $(O)/calc.o $(O)/signature.o
 
 all: disk.img
 
@@ -41,7 +41,7 @@ $(O)/kstdlib.o: src/clang/stdlib/kstdlib.c src/clangh/stdlib/kstdlib.h src/clang
 	@echo "Building standard library..."
 	@gcc $(CF) src/clang/stdlib/kstdlib.c -o compiled/obj/kstdlib.o
 
-$(O)/keyboard.o: src/clang/keyboard/keyboard.c src/clangh/keyboard/keyboard.h
+$(O)/keyboard.o: src/clang/keyboard/keyboard.c src/clangh/keyboard/keyboard.h src/clangh/utilities/ring_buffer.h
 	@echo "Building keyboard driver..."
 	@gcc $(CF) src/clang/keyboard/keyboard.c -o compiled/obj/keyboard.o
 

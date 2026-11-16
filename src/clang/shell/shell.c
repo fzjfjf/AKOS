@@ -9,7 +9,9 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 {
 	// TODO: add the programs[] support
 
-	kprintf("COMMAND: %sEND\n", command);
+	if (index == 0 || *command == ' ' || *command == '\0') {
+		return;
+	}
 
 	if (kstrcmp_ws(command, "cls") == true) {
 		kclear_vga_buffer();
@@ -56,7 +58,7 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 
 						argv[argc] = kmalloc(command - start + 1);
 
-						kmemcpy(argv[argc], start, command - start);
+						kmemcpy((address8)argv[argc], (address8)start, command - start);
 						argv[argc][command - start] = '\0';
 						argc++;
 						start = command + 1;

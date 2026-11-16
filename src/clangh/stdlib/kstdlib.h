@@ -12,6 +12,9 @@
 #define HEAP_START (address8)0xb0000000
 #define HEAP_END (address8)0xbfffffff
 
+#define SIZE(x) ( sizeof((x)) / sizeof((x)[0]) )						// x HAS TO BE AN ARRAY, NOT A POINTER
+#define RANGE_FOR(cont, it) for (int it = 0; it < (cont).size; it++)	// cont HAS TO HAVE FIELD `size`; `it` is the name for the iterator, eg. i, j, k, index...
+
 #define true 1
 #define false 0
 typedef volatile unsigned char* address8;
@@ -38,12 +41,12 @@ typedef struct {
 // =====================================================================================================================
 // MEMORY
 // =====================================================================================================================
-void* kmalloc(size_t size);
+void kfree(void *p);	// POINTER MUST COME FROM KMALLOC
+void* kmalloc(size_t size) __attribute__((malloc));
+void* krealloc(void* ptr, size_t size) __attribute__((alloc_size(2)));
 void kmem_zero(address8 start, address8 end);
 void kclear_vga_buffer();
-void kfree(void *p);	// POINTER MUST COME FROM KMALLOC
 size_t kmemcpy(address8 dest, address8 src, size_t n);
-void* krealloc(void* ptr, size_t size);
 // =====================================================================================================================
 // OUTPUT
 // =====================================================================================================================

@@ -110,8 +110,8 @@ void kupdate_cursor(uint16_t pos)
 
 void* kmalloc(size_t size)
 {
-	// TODO: add reusing blocks instead of only being a bump allocator - fixed, kinda. eh, good enough. \
-	   TODO: defragmentation isnt necessary right now
+	/* TODO: add reusing blocks instead of only being a bump allocator - fixed, kinda. eh, good enough.
+	   TODO: defragmentation isnt necessary right now */
 	address8 p = HEAP_START;
 	while (p < HEAP_END) {
 		if (p[0] == 0) {
@@ -143,7 +143,7 @@ void* kmalloc(size_t size)
 	return NULL;
 }
 
-void kfree(void *p)
+__attribute__ ((noinline)) void kfree(void *p)
 {
 	heap_mem_header_t *header = (heap_mem_header_t *)p - 1;
 	header->is_free = true;
@@ -301,8 +301,8 @@ void kprint(char *s)	//NOLINT
 			// clear current line and next line 
 			for (int j = 0; j < 320; j+=2) {
 				vga_args.vga[j] = ' ';
-				vga_args.vga[j + 1] = vga_args.color;		// this HAS to be white on black, otherwise cursor cant	\
-															   be seen!
+				vga_args.vga[j + 1] = vga_args.color;		/* this HAS to be white on black, otherwise cursor cant
+															   be seen! */
 			}
 
 			i++;
@@ -363,8 +363,8 @@ void kputc(char c)
 		// clear current line and next line
 		for (int j = 0; j < 320; j+=2) {
 			vga_args.vga[j] = ' ';
-			vga_args.vga[j + 1] = vga_args.color;		// this HAS to be white on black, otherwise cursor cant	\
-			be seen!
+			vga_args.vga[j + 1] = vga_args.color;		// this HAS to be white on black, otherwise cursor cant
+														// be seen!
 		}
 
 		return;

@@ -198,6 +198,8 @@ int move_ball()
 	if (!ball.moving_up) ball.y++;
 
 	draw_char(ball.x, ball.y, 0xdb, ball.color);		// redraw ball
+
+	return 0;
 }
 
 // ======== MAIN FUNCTION ========

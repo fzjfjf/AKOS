@@ -5,7 +5,7 @@ void sl(int argc, char **argv)
 {
 	kclear_vga_buffer();
 
-	static const char voz[2001] =
+	static char voz[2001] =
 "                                                                                "
 "                                                                                "
 "                                                                                "

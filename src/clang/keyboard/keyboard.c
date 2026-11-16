@@ -2,6 +2,17 @@
 #include <scancodes.h>
 #include <kstdlib.h>
 #include <idt.h>
+#include <../../clangh/utilities/ring_buffer.h>
+
+DEFINE_RING_BUFFER(uint8_t, UCharRingBuffer)
+
+static uint8_t storage[128];
+static UCharRingBuffer buffer;
+
+void keyboard_init(void)
+{
+    UCharRingBuffer_init(&buffer, storage, sizeof storage);
+}
 
 #define KEYBOARD_INPUT_PORT 0x64
 #define KEYBOARD_SCANCODE_PORT 0x60
@@ -14,7 +25,6 @@ typedef struct {
     bool shift;
     bool ctrl;
     bool alt;
-    char c;
 } KEYBOARD_STATE;
 
 KEYBOARD_STATE keyb_state;
@@ -108,18 +118,20 @@ unsigned char decode_scancode(uint8_t scancode)
     return c;
 }
 
+/* Polling verzija: čita port direktno i krade scancodeove ISR-u.
+   Zovi je samo dok IRQ1 nije upaljen, ili je obriši ako je ne koristiš. */
 size_t kinput_b(char *s)
 {
     size_t count = 0;
     char c = ' ';
     uint8_t scancode = 0;
     while (c != '\n') {
-        if ((inb(KEYBOARD_INPUT_PORT) & 1)) {           // There is scnacode waiting
+        if ((inb(KEYBOARD_INPUT_PORT) & 1)) {           // There is scancode waiting
             scancode = inb(KEYBOARD_SCANCODE_PORT);     // Read scancode
 
             if (scancode & 0x80) continue;
             if (scancode == KEY_ENTER) c = '\n';             // If scancode is enter put \n in c
-            else if (scancode < 0x3a) c = scancode_to_ascii[scancode];      // if scnacode is a character
+            else if (scancode < 0x3a) c = scancode_to_ascii[scancode];      // if scancode is a character
 
             s[count] = c;               // put the character into the string
             count++;                    // increment index of string
@@ -132,9 +144,14 @@ size_t kinput_b(char *s)
 
 char kgetchar_nb()
 {
-    char c = keyb_state.c;
-    keyb_state.c = '\0';
-    return c;
+    uint8_t c;
+    bool ok;
+
+    asm volatile("cli" ::: "memory");
+    ok = UCharRingBuffer_pop(&buffer, &c);
+    asm volatile("sti" ::: "memory");
+
+    return ok ? (char)c : '\0';
 }
 
 void keyboard_handler()
@@ -146,6 +163,11 @@ void keyboard_handler()
     if (scancode == KEY_EXTENDED) {
         keyb_state.extended = true;
     } else {
-        keyb_state.c = (char)decode_scancode(scancode);
+        /* decode uvijek zovemo, da shift/ctrl/alt ažuriraju stanje i na release */
+        char c = (char)decode_scancode(scancode);
+
+        /* u bafer idu samo pritisci stvarnih znakova, ne release kodovi ni modifikatori */
+        if (!(scancode & 0x80) && c != '\0')
+            UCharRingBuffer_append(&buffer, (uint8_t)c);
     }
 }

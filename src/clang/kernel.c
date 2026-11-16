@@ -6,7 +6,7 @@
 #include <idt.h>
 #include <calc.h>
 
-#include "keyboard.h"
+#include <keyboard.h>
 
 extern VGA_t vga_args;
 
@@ -25,6 +25,7 @@ void print_OK(char *s, bool r)
 void kmain()
 {
 	// ========== INITIALIZATIONS ==========
+	keyboard_init();
 	print_OK("Subscribed to Kernel\n", false);
 	load_idt();
 	print_OK("IDT Loaded\n", false);
@@ -82,7 +83,7 @@ void kmain()
 	char *program_names[] = {
 		"pong", "sl", "zemo", "calc"
 	};
-	shell(programs, program_names, 4);
+	shell(programs, program_names, SIZE(programs));
 
 	// notify that shell ended, if shell for some reason exited
 	kprint("\nSHELL ended\n");
