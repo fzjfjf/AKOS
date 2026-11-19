@@ -2,7 +2,7 @@
 #include <scancodes.h>
 #include <kstdlib.h>
 #include <idt.h>
-#include <../../clangh/utilities/ring_buffer.h>
+#include <ring_buffer.h>
 
 DEFINE_RING_BUFFER(uint8_t, UCharRingBuffer)
 

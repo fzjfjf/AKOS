@@ -1,8 +1,12 @@
 #include <shell.h>
 #include <keyboard.h>
 #include <kstdlib.h>
+#include <vector.h>
 
 extern void kpanic();
+
+typedef char* CPTR;
+DEFINE_VECTOR(CPTR, StrVec)
 
 void dispatcher(char *command, int index, char *help_message[],				// for built in commands
 				program_t programs[], char *names[], size_t count)			// for programs passed from kernel
@@ -19,7 +23,7 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 	} else if (kstrcmp_ws(command, "uname") == true) {
 		kprint("AKOS(C) Kernel v0.1-4\n");
 	} else if (kstrcmp_ws(command, "help") == true) {
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; help_message[i]; i++) {
 			kprint(help_message[i]);
 		}
 		kprint("\nOther commands or programs:\n");
@@ -47,32 +51,49 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 		// first go through the program function pointer array
 		for (int i = 0; i < count; i++) {
 			if (kstrcmp_ws(command, names[i]) == true) {
-				char **argv = kmalloc(sizeof(char*));
-				int argc = 0;
+				StrVec argv;									//make a vector for ourselves
+				StrVec_init(&argv);
 
-				char *start = command;
+				char *p = command;								// to not overwrite command
 
-				while (*command) {
-					if (*command == ' ') {
-						argv = krealloc(argv, (argc + 1) * sizeof(char*));
-
-						argv[argc] = kmalloc(command - start + 1);
-
-						kmemcpy((address8)argv[argc], (address8)start, command - start);
-						argv[argc][command - start] = '\0';
-						argc++;
-						start = command + 1;
-						command++;
-					} else command++;
+				while (*p) {									// while we have not reached end
+					while (*p == ' ') *p++ = '\0';				// skip spaces and repalce them with NULL
+					if (*p == '\0') break;						// if we reached end
+					if (!StrVec_push(&argv, p)) 				/* push the pointer */
+						goto error;
+					while (*p && *p != ' ') p++;				// skip word (token)
 				}
 
-				argv[argc] = NULL;
+				if (!StrVec_push(&argv, NULL)) goto error;				// stavljamo NULL na kraj
 
-				programs[i](argc, argv);
+				programs[i]((int)argv.size - 1, argv.data);				// - 1 zbog NULL na kraju
 
-				for (int i = 0; i < argc; i++) kfree(argv[i]);
-				kfree(argv);
+				StrVec_free(&argv);
 				return;
+
+
+				error:
+				// =============================================================================================
+				kprintf("MEMORY FAULT: ARGUMENT PARSING FAILED\n");
+				kprintf("CONTINUE TO SHELL OR PANIC? (c or p): ");
+
+				char c;
+				label:
+				do {
+					c = kgetchar_nb();
+					if (!c) __asm__ volatile("hlt");
+				} while (!c);
+
+				if (c == 'p') {
+					kpanic();
+				} else if (c == 'c') {
+					kprintf("\n");
+					StrVec_free(&argv);
+					return;
+				} else {
+					goto label;
+				}
+				// =============================================================================================
 			}
 		}
 
@@ -93,6 +114,7 @@ void shell(program_t programs[], char *names[], size_t count)
 		"UNAME - Show version number\n",
 		"HELP - Show help message\n",
 		"REBOOT - Reboot PC\n",
+		NULL
 	};
 
 	kprint("> ");

@@ -264,6 +264,7 @@ int kprintf(char *format, ...)
 							va_end(args);
 							return -1;
 					}
+					break;
 				case 'f':
 				default:
 					va_end(args);
@@ -519,4 +520,42 @@ int atoi(const char *s)
 	}
 
 	return sign * result;
+}
+
+char *strchr(char *s, char c)
+{
+	while (*s) {
+		if (*s == c) return s;
+		s++;
+	}
+	return NULL;
+}
+
+char *strstr(char *haystack, char *needle)
+{
+	size_t haystack_len = kstrlen(haystack);
+	size_t needle_len = kstrlen(needle);
+
+	if (needle_len > haystack_len) return NULL;
+
+	for (size_t i = 0; i < haystack_len; i++) {
+		if (kstrncmp(haystack + i, needle, needle_len)) {
+			return haystack + i;
+		}
+	}
+
+	return NULL;
+}
+
+bool kstrncmp(char *s1, char *s2, size_t n)
+{
+	if (!s1 || !s2) return false;
+
+	while (n--) {
+		if (*s1 != *s2) return false;
+		if (!*s1) return true;
+		s1++; s2++;
+	}
+
+	return true;
 }

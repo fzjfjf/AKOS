@@ -27,8 +27,10 @@ void calc(int argc, char *argv[])
 	StrVec vec;
 	StrVec_init(&vec);
 
+	kprintf("CALC\n");
+
 	for (int i = 0; i < argc; i++) {
-		kprintf("%s\n", argv[i]);
+		kprintf("%sEND\n", argv[i]);
 		StrVec_push(&vec, argv[i]);
 	}
 
