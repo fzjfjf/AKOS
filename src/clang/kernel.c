@@ -5,10 +5,12 @@
 #include <utilities/utilities.h>
 #include <idt.h>
 #include <calc.h>
-
+#include <vector.h>
 #include <keyboard.h>
 
 extern VGA_t vga_args;
+
+DEFINE_VECTOR(int, VecInt);
 
 void print_OK(char *s, bool r)
 {
@@ -74,6 +76,21 @@ void kmain()
 	// kprintf("100: %s\n-100: %s\n", test_itoa2, test_itoa);
 	// kfree(test_itoa);
 	// kfree(test_itoa2);
+
+	// VecInt v;
+	// VecInt_init(&v);
+	//
+	// for (int i = 0; i < 10; i++) {
+	// 	VecInt_push(&v, i);
+	// }
+	//
+	// RANGE_FOR(v, i) {
+	// 	kprintf("%i\n", VecInt_at(&v, i));
+	// }
+	// kprintf("%i\n", VecInt_at(&v, 0));
+	// kprintf("%i\n", v.data[0]);
+	//
+	// VecInt_free(&v);
 
 	// ========== SHELL ==========
 	// start shell

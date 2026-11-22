@@ -70,10 +70,10 @@ int atoi(const char *s);
 // STRING FUNCTIONS
 // =====================================================================================================================
 bool kstrcmp(char *s1, char *s2);			// Note: Returns true if strings are equal
-size_t kstrlen(const char *s);				// Note: Returns true if strings are equal
+size_t kstrlen(const char *s);
 bool kstrcmp_ws(char*, char*);				// Note: Returns true if strings are equal
-char *strchr(char *, char);					// Note: Returns true if strings are equal
-char *strrchr(char *, char*);				// Note: Returns true if strings are equal
+char *strchr(char *, char);
+char *strstr(char *, char*);
 bool kstrncmp(char *, char *, size_t);		// Note: Returns true if strings are equal
 // =====================================================================================================================
 // OTHER

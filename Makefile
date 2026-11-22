@@ -1,9 +1,13 @@
 CF = -Wall -Werror -O3 -m32 -c -ffreestanding -fno-pic -Isrc/clangh -Isrc/clangh/stdlib -Isrc/clangh/keyboard -Isrc/clangh/shell -Isrc/clangh/pong -Isrc/clangh/utilities
 O = compiled/obj
 
-OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/kpanic.o $(O)/utilities.o $(O)/calc.o $(O)/signature.o
+OBJS = $(O)/initializer.o $(O)/kernel.o $(O)/kstdlib.o $(O)/keyboard.o $(O)/inout.o $(O)/shell.o $(O)/idt.o $(O)/pong.o $(O)/idtc.o $(O)/kpanic.o $(O)/utilities.o $(O)/calc.o $(O)/abort.o $(O)/signature.o
 
 all: disk.img
+
+compiled/obj/abort.o: src/clang/utilities/abort.c
+	@echo "Building ABORT..."
+	@gcc $(CF) src/clang/utilities/abort.c -o compiled/obj/abort.o
 
 compiled/obj/calc.o: src/clang/utilities/calc.c
 	@echo "Building calculator..."

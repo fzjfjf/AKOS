@@ -212,7 +212,8 @@ int kprintf(char *format, ...)
 					kprint(va_arg(args, char *));
 
 					break;
-				case 'i':
+				case 'i':		// intentional
+				case 'd':
 
 					char* temp_si = kmalloc(12);
 					itoa(va_arg(args, int), temp_si);
