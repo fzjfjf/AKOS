@@ -37,7 +37,7 @@ void calc(int argc, char *argv[])
 
 	RANGE_FOR(vec, i)
 	{
-		kprintf("%a\n", StrVec_at(&vec, i));
+		kprintf("%s\n", StrVec_at(&vec, i));
 	}
 
 

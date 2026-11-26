@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <klimits.h>
+
 #ifdef INCLUDE_COLORS_AUTO
 #include <vga_colors.h>
 #endif
@@ -91,7 +93,16 @@ int kdo_nothing();
 // EXCEPTION CODES
 // =====================================================================================================================
 typedef enum : int {
-	STD_BAD_FORMAT = (1 << 8),
+	SUCCESS = 0,
+
+	STD_BAD_FORMAT = (1 << 8),			// 256
 	STD_BAD_STRING,
 	STD_INTEGER_OVERFLOW,
+
+	_STD_END = (1 << 9) - 1,			// NOLINT
+
+	
+
+	_START_APPLICATION_CODES = INT_MIN,		// NOLINT
+	_END_APPLICATION_CODES = -1,			// NOLINT
 } exception_codes_e;
