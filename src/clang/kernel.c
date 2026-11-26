@@ -98,10 +98,10 @@ void kmain()
 	// ========== SHELL ==========
 	// start shell
 	program_t programs[] = {
-		pong, sl, zemo, calc
+		pong, sl, calc
 	};
 	char *program_names[] = {
-		"pong", "sl", "zemo", "calc"
+		"pong", "sl", "calc"
 	};
 
 	TRY {
