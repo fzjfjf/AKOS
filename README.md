@@ -36,14 +36,14 @@ AKOS currently supports a shell, which has basic commands like
 - `help` - Shows a list of commands
 - `uname` - Shows version
 - `reboot` - Reboots machine
-- `exit` - Exits shell, and eventually halts the machine
 - `pong` - Opens pong
 - `cls` - clears screen
 
-## Pong
+AKOS supports basic interrupts (keyboard, timer and GPF).  
 
-Since there is not an IDT in place, pong uses polling and a `tick` variable in the game loop.   
-At the start, you are asked to choose if you want to play against an AI. Writing `ai` will choose to play against an AI (the AI currently tracks the y position of the ball, so you could also call it a DI - dumb intelligence xD).   
+## Pong 
+
+AI Mode is currently borked (i think)
 
 Note: when choosing to play between an AI or 2 player mode, your input is not visible.
 
@@ -51,7 +51,6 @@ Note: when choosing to play between an AI or 2 player mode, your input is not vi
 
 Here is a list of features i plan to add:
 
-- Interrupts
 - Kernel/User mode (ring0 and ring3)
 - System calls (`syscall`/`int 0x80`)
-- FAT 12/16 filesystem support
+- FAT 32 filesystem support (in progress)
