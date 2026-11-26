@@ -70,8 +70,11 @@ int atoi(const char *s);
 // STRING FUNCTIONS
 // =====================================================================================================================
 bool kstrcmp(char *s1, char *s2);			// Note: Returns true if strings are equal
+bool kstrcmp_s(char *, char *, size_t);
 size_t kstrlen(const char *s);
+size_t kstrlen_s(const char *s, size_t max_len);
 bool kstrcmp_ws(char*, char*);				// Note: Returns true if strings are equal
+bool kstrcmp_ws_s(char *, char *, size_t);
 char *strchr(char *, char);
 char *strstr(char *, char*);
 bool kstrncmp(char *, char *, size_t);		// Note: Returns true if strings are equal
@@ -81,3 +84,13 @@ bool kstrncmp(char *, char *, size_t);		// Note: Returns true if strings are equ
 void kupdate_cursor(uint16_t pos);
 void reboot(uint64_t passwd);
 int kdo_nothing();
+
+
+// =====================================================================================================================
+// EXCEPTION CODES
+// =====================================================================================================================
+typedef enum : int {
+	STD_BAD_FORMAT = (1 << 8),
+	STD_BAD_STRING,
+	STD_INTEGER_OVERFLOW,
+} exception_codes_e;

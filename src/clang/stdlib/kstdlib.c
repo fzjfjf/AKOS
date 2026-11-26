@@ -3,6 +3,8 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <exceptions.h>
+#include <klimits.h>
 
 typedef struct {
 	address8 ptr;
@@ -28,10 +30,22 @@ int min(int a, int b)
 	return a < b ? a : b;
 }
 
-size_t kstrlen(const char *s)
+NO_THROW size_t kstrlen(const char *s)
 {
 	size_t len = 0;
 	while (s[len] != 0) {
+		len++;
+	}
+	return len;
+}
+
+size_t kstrlen_s(const char *s, size_t max_len)
+{
+	size_t len = 0;
+	while (s[len] != 0) {
+		if (len >= max_len) {
+			THROW(STD_BAD_STRING);
+		}
 		len++;
 	}
 	return len;
@@ -44,7 +58,7 @@ void reboot(uint64_t passwd)
 	}
 }
 
-bool kstrcmp(char *s1, char *s2)
+NO_THROW bool kstrcmp(char *s1, char *s2)
 {
 	// kprint("\nS1: ", vga_args);
 	// kprint(s1, vga_args);
@@ -64,7 +78,37 @@ bool kstrcmp(char *s1, char *s2)
 	return true;
 }
 
-bool kstrcmp_ws(char *s1, char *s2)
+bool kstrcmp_s(char *s1, char *s2, size_t max_len)
+{
+	// kprint("\nS1: ", vga_args);
+	// kprint(s1, vga_args);
+	// kprint("\nS2: ", vga_args);
+	// kprint(s2, vga_args);
+	size_t len = 0;
+
+	size_t len1 = kstrlen_s(s1, max_len);
+	size_t len2 = kstrlen_s(s2, max_len);
+
+	if (len1 != len2) {
+		return false;
+	}
+
+	for (int i = 0; i < len1; i++) {
+
+		if (len >= max_len) {
+			THROW(STD_BAD_STRING);
+		}
+
+		if (s1[i] != s2[i]) {
+			return false;
+		}
+
+		len++;
+	}
+	return true;
+}
+
+NO_THROW bool kstrcmp_ws(char *s1, char *s2)
 {
 	while (*s1 != ' ' && *s1 != '\0' && *s2 != '\0') {
 		if (*s1 != *s2) return false;
@@ -75,10 +119,26 @@ bool kstrcmp_ws(char *s1, char *s2)
 	return (*s1 == ' ' || *s1 == '\0') && *s2 == '\0';
 }
 
-void kmem_zero(address8 start, address8 end)
+bool kstrcmp_ws_s(char *s1, char *s2, size_t max_len)
 {
-	uint32_t *p = (uint32_t *)start;
-	while (p < (uint32_t *)end) {
+	size_t len = 0;
+	while (*s1 != ' ' && *s1 != '\0' && *s2 != '\0') {
+		if (len >= max_len) THROW(STD_BAD_STRING);
+
+		if (*s1 != *s2) return false;
+		s1++;
+		s2++;
+
+		len++;
+	}
+
+	return (*s1 == ' ' || *s1 == '\0') && *s2 == '\0';
+}
+
+NO_THROW void kmem_zero(address8 start, address8 end)		// NOLINT
+{
+	address8 p = start;
+	while (p < end) {
 		*p++ = 0;
 	}
 }
@@ -88,7 +148,7 @@ int kdo_nothing()
 	return 0;
 }
 
-void kupdate_cursor(uint16_t pos)
+NO_THROW void kupdate_cursor(uint16_t pos)
 {
 	outb(0x3D4, 0x0A);
 	uint8_t start = inb(0x3D5);
@@ -108,7 +168,7 @@ void kupdate_cursor(uint16_t pos)
 	outb(0x3D5, pos & 0xFF);
 }
 
-void* kmalloc(size_t size)
+NO_THROW void* kmalloc(size_t size)
 {
 	/* TODO: add reusing blocks instead of only being a bump allocator - fixed, kinda. eh, good enough.
 	   TODO: defragmentation isnt necessary right now */
@@ -143,21 +203,24 @@ void* kmalloc(size_t size)
 	return NULL;
 }
 
-__attribute__ ((noinline)) void kfree(void *p)
+__attribute__ ((noinline)) NO_THROW
+void kfree(void *p)
 {
 	heap_mem_header_t *header = (heap_mem_header_t *)p - 1;
 	header->is_free = true;
 	return;		//NOLINT
 }
 
+NO_THROW
 void* krealloc(void *src, size_t size)
 {
 	void *new = kmalloc(size);
-	kmemcpy(new, src, min(size, ((heap_mem_header_t*)(src - sizeof(heap_mem_header_t)))->size));
+	kmemcpy(new, src, min((int)size, (int)((heap_mem_header_t*)(src - sizeof(heap_mem_header_t)))->size));
 	kfree(src);
 	return new;
 }
 
+NO_THROW
 size_t kmemcpy(address8 dest, address8 src, size_t count)
 {
 	int len = 0;
@@ -199,68 +262,73 @@ int kprintf(char *format, ...)
 					kputc((char)va_arg(args, int));
 
 					break;
-				case 'b':
-
-					int b = va_arg(args, int);
+				case 'b': {
+					int b = va_arg(args, int);								// NOLINT
 
 					if (b) kprint("true");
 					else kprint("false");
 
 					break;
+				}
 				case 's':
 
 					kprint(va_arg(args, char *));
 
 					break;
 				case 'i':		// intentional
-				case 'd':
-
-					char* temp_si = kmalloc(12);
+				case 'd': {
+					char* temp_si = kmalloc(12);						// NOLINT
 					itoa(va_arg(args, int), temp_si);
 					kprint(temp_si);
 					kfree(temp_si);
 
 					break;
-				case 'u':
-
-					char *temp_su = kmalloc(11);
+				}
+				case 'u': {
+					char *temp_su = kmalloc(11);						// NOLINT
 					uitoa(va_arg(args, unsigned int), temp_su);
 					kprint(temp_su);
 					kfree(temp_su);
 
 					break;
+				}
 				case 'p':				// intentional
-				case 'x':
-
-					char *temp_sx = kmalloc(11);
+				case 'x': {
+					char *temp_sx = kmalloc(11);						// NOLINT
 					xtoa(va_arg(args, unsigned int), temp_sx);
 					kprint(temp_sx);
 					kfree(temp_sx);
 
 					break;
+				}
 				case 'l':
 					switch (*++format) {
-						case 'u':				// NOLINT - placeholder temporarily
-							char *temp_slu = kmalloc(21);
+						case 'u': {
+							// NOLINT - placeholder temporarily
+							char *temp_slu = kmalloc(21);				// NOLINT
 							lutoa(va_arg(args, uint64_t), temp_slu);
 							kprint(temp_slu);
 							kfree(temp_slu);
 
 							break;
-						case 'i':
-							char *temp_sli = kmalloc(21);
+						}
+					case 'd':
+					case 'i': {
+							char *temp_sli = kmalloc(21);				// NOLINT
 							litoa(va_arg(args, int64_t), temp_sli);
 							kprint(temp_sli);
 							kfree(temp_sli);
 
 							break;
-						case 'x':
-							char *temp_slx = kmalloc(21);
+						}
+						case 'x': {
+							char *temp_slx = kmalloc(21);				// NOLINT
 							litoa(va_arg(args, int64_t), temp_slx);
 							kprint(temp_slx);
 							kfree(temp_slx);
 
 							break;
+						}
 						default:
 							va_end(args);
 							return -1;
@@ -269,7 +337,7 @@ int kprintf(char *format, ...)
 				case 'f':
 				default:
 					va_end(args);
-					return -1;
+					THROW(STD_BAD_FORMAT);
 			}
 		} else {
 			kputc(*format);
@@ -283,6 +351,7 @@ int kprintf(char *format, ...)
 	return count;
 }
 
+NO_THROW
 void kprint(char *s)	//NOLINT
 {
 	int i = 0;	
@@ -341,6 +410,7 @@ void kprint(char *s)	//NOLINT
 	return;	//NOLINT
 }
 
+NO_THROW
 void kclear_vga_buffer()
 {
 	address8 vga_p = (address8)VGA_ADDRESS;
@@ -351,6 +421,7 @@ void kclear_vga_buffer()
 	vga_args.line_number = 0;
 }
 
+NO_THROW
 void kputc(char c)
 {
 	if (c == '\n') {
@@ -402,7 +473,7 @@ void itoa(int integer, char *string)
 	for (int divisor = 1000000000; divisor > 0; divisor /= 10) {
 		if (num / divisor != 0 || skipped_zeros) {
 			skipped_zeros = true;
-			string[i++] = '0' + num / divisor;
+			string[i++] = (char)('0' + num / divisor);
 			num %= divisor;
 		}
 	}
@@ -419,7 +490,7 @@ void uitoa(unsigned int uinteger, char *string)
 	for (int divisor = 1000000000; divisor > 0; divisor /= 10) {
 		if (uinteger / divisor != 0 || skipped_zeros) {
 			skipped_zeros = true;
-			string[i++] = '0' + uinteger / divisor;
+			string[i++] = (char)('0' + uinteger / divisor);
 			uinteger %= divisor;
 		}
 	}
@@ -437,9 +508,9 @@ void xtoa(unsigned int hex, char *string)
 		unsigned int nibble = (hex >> j) & 0x0F;
 
 		if (nibble < 10) {
-			string[i++] = '0' + nibble;
+			string[i++] = (char)('0' + nibble);
 		} else {
-			string[i++] = nibble - 10 + 'A';
+			string[i++] = (char)(nibble - 10 + 'A');
 		}
 	}
 
@@ -496,15 +567,16 @@ void lxtoa(uint64_t hex, char *string)
 		unsigned int nibble = (hex >> j) & 0x0F;
 
 		if (nibble < 10) {
-			string[i++] = '0' + nibble;
+			string[i++] = (char)('0' + nibble);
 		} else {
-			string[i++] = nibble - 10 + 'A';
+			string[i++] = (char)(nibble - 10 + 'A');
 		}
 	}
 
 	string[i] = '\0';
 }
 
+NO_THROW
 int atoi(const char *s)
 {
 	int sign = 1;
@@ -522,6 +594,53 @@ int atoi(const char *s)
 
 	return sign * result;
 }
+
+int atoi_s(const char *s)
+{
+	int sign = 1;
+	int result = 0;
+
+	while (*s == ' ' || *s == '\t') s++;			// skip zeroes
+
+	size_t len = kstrlen_s(s, 20);			// get length
+	if (len == 0) THROW(STD_BAD_STRING);		// throw if ("")
+
+	if (*s == '-') {								// check sign
+		sign = -1;
+		s++;
+		len--;
+	}
+	else if (*s == '+') {
+		s++;
+		len--;
+	}
+
+	if (len == 0) THROW(STD_BAD_STRING);		// if len after removal of sign iz zero ("-")
+
+	for (size_t i = 0; i < len; i++) {				// if other than numbers
+		if (s[i] < '0' || s[i] > '9') {
+			THROW(STD_BAD_STRING);
+		}
+	}
+
+	int limit = (sign == -1) ? INT_MIN : -INT_MAX;
+
+	while (*s >= '0' && *s <= '9') {
+		int digit = *s - '0';
+
+		// magic
+		if (result < limit / 10 ||
+			(result == limit / 10 && -digit < limit % 10)) {
+			THROW(STD_INTEGER_OVERFLOW);
+			}
+
+		result = result * 10 - digit;
+		s++;
+	}
+
+	return (sign == -1) ? result : -result;
+}
+
 
 char *strchr(char *s, char c)
 {

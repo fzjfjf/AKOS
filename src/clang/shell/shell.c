@@ -2,6 +2,7 @@
 #include <keyboard.h>
 #include <kstdlib.h>
 #include <vector.h>
+#include <exceptions.h>
 
 extern void kpanic();
 
@@ -66,7 +67,11 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 
 				if (!StrVec_push(&argv, NULL)) goto error;				// stavljamo NULL na kraj
 
-				programs[i]((int)argv.size - 1, argv.data);				// - 1 zbog NULL na kraju
+				TRY {
+					programs[i]((int)argv.size - 1, argv.data);				// - 1 zbog NULL na kraju
+				} CATCH(e) {
+					kprintf("\nException occured during %s. Error code: %x\n", argv.data[0], e);
+				} END_TRY
 
 				StrVec_free(&argv);
 				return;
@@ -74,8 +79,8 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 
 				error:
 				// =============================================================================================
-				kprintf("MEMORY FAULT: ARGUMENT PARSING FAILED\n");
-				kprintf("CONTINUE TO SHELL OR PANIC? (c or p): ");
+				kprint("MEMORY FAULT: ARGUMENT PARSING FAILED\n");
+				kprint("CONTINUE TO SHELL OR PANIC? (c or p): ");
 
 				char c;
 				label:
@@ -87,7 +92,7 @@ void dispatcher(char *command, int index, char *help_message[],				// for built 
 				if (c == 'p') {
 					kpanic();
 				} else if (c == 'c') {
-					kprintf("\n");
+					kprint("\n");
 					StrVec_free(&argv);
 					return;
 				} else {

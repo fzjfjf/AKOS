@@ -8,7 +8,10 @@
 #include <vector.h>
 #include <keyboard.h>
 
+#include "exceptions.h"
+
 extern VGA_t vga_args;
+extern void kpanic();
 
 DEFINE_VECTOR(int, VecInt);
 
@@ -100,16 +103,21 @@ void kmain()
 	char *program_names[] = {
 		"pong", "sl", "zemo", "calc"
 	};
-	shell(programs, program_names, SIZE(programs));
 
-	// notify that shell ended, if shell for some reason exited
-	kprint("\nSHELL ended\n");
+	TRY {
+		shell(programs, program_names, SIZE(programs));
+	} CATCH(e) {
+		kprintf("Exception happened in SHELL or in running program, with exception %d\n", e);
+		kprintf("Unexpected state, waiting 5 seconds and panicing...");
 
+		uint64_t time = millis();
 
-	// print that there is nothing more to execute, and stop
-	kclear_vga_buffer();
-	kprint("\n\n===== END OF KERNEL CODE, HALTING =====");
-	goto stop;
+		while (millis() - time < 5000) {
+			__asm__ volatile("hlt");
+		}
+
+		kpanic();
+	} END_TRY;
 
 	// ========== ERROR LABELS ==========
 	kmalloc_error:

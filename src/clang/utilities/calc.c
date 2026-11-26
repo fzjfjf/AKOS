@@ -1,6 +1,7 @@
 #include "calc.h"
 #include <kstdlib.h>
 #include <vector.h>
+#include <exceptions.h>
 
 typedef char* cptr;
 DEFINE_VECTOR(cptr, StrVec)
@@ -34,8 +35,9 @@ void calc(int argc, char *argv[])
 		StrVec_push(&vec, argv[i]);
 	}
 
-	RANGE_FOR(vec, i) {
-		kprintf("%s\n", *StrVec_atp(&vec, i));
+	RANGE_FOR(vec, i)
+	{
+		kprintf("%a\n", StrVec_at(&vec, i));
 	}
 
 
